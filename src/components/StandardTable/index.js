@@ -48,16 +48,16 @@ class StandardTable extends PureComponent {
 
     const columns = [
       {
-        title: 'ID',
-        dataIndex: '_id',
+        title: '更新日期',
+        dataIndex: 'updatedAt',
       },
       {
         title: '用户名',
         dataIndex: 'username',
       },
       {
-        title: '版本',
-        dataIndex: '__v',
+        title: '类别',
+        dataIndex: 'type',
         sorter: true,
         align: 'right',
         //render: val => `${val} 万`,

@@ -42,9 +42,18 @@ const CreateForm = Form.create()((props) => {
         label="密码"
       >
         {form.getFieldDecorator('password', {
-          rules: [{ required: true, message: 'Please input the password...' }],
+          rules: [{ required: false, message: 'Please input the password...' }],
         })(
           <Input placeholder="请输入"  type='password' />
+        )}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
+        {form.getFieldDecorator('type')(
+          <Select defaultValue="部门" style={{ width: '100%' }}>
+            <Option value="员工">员工</Option>
+            <Option value="部门">部门</Option>
+            <Option value="项目">项目</Option>
+          </Select>
         )}
       </FormItem>
     </Modal>
@@ -133,7 +142,7 @@ export default class TableList extends PureComponent {
         dispatch({
           type: 'rule/remove',
           payload: {
-            no: selectedRows.map(row => row.no).join(','),
+            id: selectedRows.map(row => row._id).join(','),
           },
           callback: () => {
             this.setState({
@@ -186,13 +195,14 @@ export default class TableList extends PureComponent {
   handleAdd = (fields) => {
     this.props.dispatch({
       type: 'rule/add',
-      payload: {
-        username: fields.username, //TODO: 试一试仅fields.username是否可以！
-        password: fields.password,
-      },
+      payload: fields, // {
+        // username: fields.username, //TODO: 试一试仅fields.username是否可以！
+        // password: fields.password,
+        // type:
+      // },
     });
 
-    message.success('添加成功');
+    message.success('添加成功:' + JSON.stringify(fields));
     this.setState({
       modalVisible: false,
     });
