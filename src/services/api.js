@@ -9,12 +9,16 @@ export async function queryActivities() {
   return request('/api/activities');
 }
 
-export async function queryRule(params) {
-  return request(`/api/rule?${stringify(params)}`);
+export async function queryDept(params) {
+  return request(`/api/dept?${stringify(params)}`);
 }
 
-export async function removeRule(params) {
-  return request('/api/rule', {
+export async function queryParty(params) {
+  return request(`/api/party?${stringify(params)}`);
+}
+
+export async function removeParty(params) {
+  return request('/api/party', {
     method: 'POST',
     body: {
       ...params,
@@ -23,8 +27,8 @@ export async function removeRule(params) {
   });
 }
 
-export async function addRule(params) {
-  return request('/api/rule', {
+export async function addParty(params) {
+  return request('/api/party', {
     method: 'POST',
     body: {
       ...params,

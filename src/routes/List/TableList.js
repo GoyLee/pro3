@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
+import { Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import StandardTable from '../../components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
@@ -9,6 +9,10 @@ import styles from './TableList.less';
 const FormItem = Form.Item;
 const { Option } = Select;
 const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
+
+const { Header, Content, Footer, Sider } = Layout;
+//const SubMenu = Menu.SubMenu;
+const TreeNode = Tree.TreeNode;
 
 const CreateForm = Form.create()((props) => {
   const { modalVisible, form, handleAdd, handleModalVisible } = props;
@@ -60,17 +64,23 @@ const CreateForm = Form.create()((props) => {
   );
 });
 
-@connect(({ rule, loading, }) => ({
-  rule,
-  loading: loading.models.rule,
+@connect(({ party, loading, }) => ({
+  party,
+  loading: loading.models.party,
 }))
 @Form.create()
 export default class TableList extends PureComponent {
   state = {
     modalVisible: false,
     expandForm: false,
+    collapsed: false,
     selectedRows: [],
     formValues: {},
+    //for tree
+    expandedKeys: ['0-0-0', '0-0-1'],
+    autoExpandParent: true,
+    checkedKeys: ['0-0-0'],
+    selectedKeys: [],
   };
 
   componentDidMount() {
@@ -78,7 +88,11 @@ export default class TableList extends PureComponent {
     // alert(global.currentUser.name);
     const { dispatch } = this.props;
     dispatch({
-      type: 'rule/fetch',
+      type: 'party/fetchDept',
+    });
+
+    dispatch({
+      type: 'party/fetch',
     });
 
     //dispatch({ // Myy
@@ -108,7 +122,7 @@ export default class TableList extends PureComponent {
     }
 
     dispatch({
-      type: 'rule/fetch',
+      type: 'party/fetch',
       payload: params,
     });
   }
@@ -120,7 +134,7 @@ export default class TableList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'rule/fetch',
+      type: 'party/fetch',
       payload: {},
     });
   }
@@ -140,7 +154,7 @@ export default class TableList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'rule/remove',
+          type: 'party/remove',
           payload: {
             id: selectedRows.map(row => row._id).join(','),
           },
@@ -180,7 +194,7 @@ export default class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'rule/fetch',
+        type: 'party/fetch',
         payload: values,
       });
     });
@@ -194,7 +208,7 @@ export default class TableList extends PureComponent {
 
   handleAdd = (fields) => {
     this.props.dispatch({
-      type: 'rule/add',
+      type: 'party/add',
       payload: fields, // {
         // username: fields.username, //TODO: 试一试仅fields.username是否可以！
         // password: fields.password,
@@ -207,6 +221,29 @@ export default class TableList extends PureComponent {
       modalVisible: false,
     });
   }
+
+  onExpand = (expandedKeys) => {
+    console.log('onExpand', arguments);
+    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
+    // or, you can remove all expanded children keys.
+    this.setState({
+      expandedKeys,
+      autoExpandParent: false,
+    });
+  }
+  onCheck = (checkedKeys) => {
+    //console.log('onCheck', checkedKeys);
+    message.success(checkedKeys);
+    this.setState({ checkedKeys });
+  }
+  onSelect = (selectedKeys, info) => {
+    //console.log('onSelect', info);
+    // eslint-disable-next-line
+    //alert(selectedKeys);
+    //message.success(info);
+    this.setState({ selectedKeys });
+  }
+
 
   renderSimpleForm() {
     const { getFieldDecorator } = this.props.form;
@@ -320,8 +357,79 @@ export default class TableList extends PureComponent {
     return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
 
+  renderTreeNodes = (data) => {
+    return data.map((item) => {
+      if (item.children) {
+        return (
+          <TreeNode title={item.title} key={item.key} dataRef={item}>
+            {this.renderTreeNodes(item.children)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode {...item} />;
+    });
+  }
+
+  renderDept() {
+    const { party: { dept: {list} }, loading } = this.props;
+    var treeData = list.map( (item) => {return {title:item.username, key: item._id,};} );
+    /*  
+      [{
+
+      title: '0-0',
+      key: '0-0',
+      children: [{
+        title: '0-0-0',
+        key: '0-0-0',
+        children: [
+          { title: '0-0-0-0', key: '0-0-0-0' },
+          { title: '0-0-0-1', key: '0-0-0-1' },
+          { title: '0-0-0-2', key: '0-0-0-2' },
+        ],
+      }, {
+        title: '0-0-1',
+        key: '0-0-1',
+        children: [
+          { title: '0-0-1-0', key: '0-0-1-0' },
+          { title: '0-0-1-1', key: '0-0-1-1' },
+          { title: '0-0-1-2', key: '0-0-1-2' },
+        ],
+      }, {
+        title: '0-0-2',
+        key: '0-0-2',
+      }],
+    }, {
+      title: '0-1',
+      key: '0-1',
+      children: [
+        { title: '0-1-0-0', key: '0-1-0-0' },
+        { title: '0-1-0-1', key: '0-1-0-1' },
+        { title: '0-1-0-2', key: '0-1-0-2' },
+      ],
+    }, {
+      title: '0-2',
+      key: '0-2',
+    }];
+  */
+    return (
+      <Tree
+        checkable
+        onExpand={this.onExpand}
+        expandedKeys={this.state.expandedKeys}
+        autoExpandParent={this.state.autoExpandParent}
+        loading={loading}
+        onCheck={this.onCheck}
+        checkedKeys={this.state.checkedKeys}
+        onSelect={this.onSelect}
+        selectedKeys={this.state.selectedKeys}
+      >
+        {this.renderTreeNodes(treeData)}
+      </Tree>
+    );
+  }
+  
   render() {
-    const { rule: { data }, loading } = this.props;
+    const { party: { data }, loading } = this.props;
     const { selectedRows, modalVisible } = this.state;
 
     const menu = (
@@ -337,42 +445,49 @@ export default class TableList extends PureComponent {
     };
 
     return (
-      <PageHeaderLayout title="查询表格">
-        <Card bordered={false}>
-          <div className={styles.tableList}>
-            <div className={styles.tableListForm}>
-              {this.renderForm()}
-            </div>
-            <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
-                新建
-              </Button>
-              {
-                selectedRows.length > 0 && (
-                  <span>
-                    <Button>批量操作</Button>
-                    <Dropdown overlay={menu}>
-                      <Button>
-                        更多操作 <Icon type="down" />
-                      </Button>
-                    </Dropdown>
-                  </span>
-                )
-              }
-            </div>
-            <StandardTable
-              selectedRows={selectedRows}
-              loading={loading}
-              data={data}
-              onSelectRow={this.handleSelectRows}
-              onChange={this.handleStandardTableChange}
+      <PageHeaderLayout title="组织机构和人员">
+        <Layout>
+          <Sider width={250} style={{ background: '#fff', margin: 2}}>
+            {this.renderDept()}
+          </Sider>
+          <Content style={{ background: '#fff', margin: 2}}>
+            <Card bordered={false}>
+              <div className={styles.tableList}>
+                <div className={styles.tableListForm}>
+                  {this.renderForm()}
+                </div>
+                <div className={styles.tableListOperator}>
+                  <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
+                    新建
+                  </Button>
+                  {
+                    selectedRows.length > 0 && (
+                      <span>
+                        <Button>批量操作</Button>
+                        <Dropdown overlay={menu}>
+                          <Button>
+                            更多操作 <Icon type="down" />
+                          </Button>
+                        </Dropdown>
+                      </span>
+                    )
+                  }
+                </div>
+                <StandardTable
+                  selectedRows={selectedRows}
+                  loading={loading}
+                  data={data}
+                  onSelectRow={this.handleSelectRows}
+                  onChange={this.handleStandardTableChange}
+                  />
+              </div>
+            </Card>
+          </Content>
+          <CreateForm
+            {...parentMethods}
+            modalVisible={modalVisible}
             />
-          </div>
-        </Card>
-        <CreateForm
-          {...parentMethods}
-          modalVisible={modalVisible}
-        />
+        </Layout>
       </PageHeaderLayout>
     );
   }
