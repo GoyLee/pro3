@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import StandardTable from '../../components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+//import { toTreeData } from '../../utils/utils';
 
 import styles from './TableList.less';
 
@@ -240,7 +241,7 @@ export default class TableList extends PureComponent {
     //console.log('onSelect', info);
     // eslint-disable-next-line
     //alert(selectedKeys);
-    //message.success(info);
+    message.success(selectedKeys);
     this.setState({ selectedKeys });
   }
 
@@ -372,48 +373,12 @@ export default class TableList extends PureComponent {
 
   renderDept() {
     const { party: { dept: {list} }, loading } = this.props;
-    var treeData = list.map( (item) => {return {title:item.username, key: item._id,};} );
-    /*  
-      [{
-
-      title: '0-0',
-      key: '0-0',
-      children: [{
-        title: '0-0-0',
-        key: '0-0-0',
-        children: [
-          { title: '0-0-0-0', key: '0-0-0-0' },
-          { title: '0-0-0-1', key: '0-0-0-1' },
-          { title: '0-0-0-2', key: '0-0-0-2' },
-        ],
-      }, {
-        title: '0-0-1',
-        key: '0-0-1',
-        children: [
-          { title: '0-0-1-0', key: '0-0-1-0' },
-          { title: '0-0-1-1', key: '0-0-1-1' },
-          { title: '0-0-1-2', key: '0-0-1-2' },
-        ],
-      }, {
-        title: '0-0-2',
-        key: '0-0-2',
-      }],
-    }, {
-      title: '0-1',
-      key: '0-1',
-      children: [
-        { title: '0-1-0-0', key: '0-1-0-0' },
-        { title: '0-1-0-1', key: '0-1-0-1' },
-        { title: '0-1-0-2', key: '0-1-0-2' },
-      ],
-    }, {
-      title: '0-2',
-      key: '0-2',
-    }];
-  */
+    //var treeData = list.map( (item) => {return {title:item.username, key: item._id,};} );
+    //var treeData = toTreeData(list);
+    //alert(JSON.stringify(list));
+    //checkable
     return (
       <Tree
-        checkable
         onExpand={this.onExpand}
         expandedKeys={this.state.expandedKeys}
         autoExpandParent={this.state.autoExpandParent}
@@ -423,7 +388,7 @@ export default class TableList extends PureComponent {
         onSelect={this.onSelect}
         selectedKeys={this.state.selectedKeys}
       >
-        {this.renderTreeNodes(treeData)}
+        {this.renderTreeNodes(list)}
       </Tree>
     );
   }
