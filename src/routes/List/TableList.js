@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
+import { Cascader, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import StandardTable from '../../components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 //import { toTreeData } from '../../utils/utils';
@@ -24,34 +24,28 @@ const CreateForm = Form.create()((props) => {
     });
   };
   return (
-    <Modal
-      title="新建用户"
-      visible={modalVisible}
-      onOk={okHandle}
-      onCancel={() => handleModalVisible()}
-    >
-      <FormItem
-        labelCol={{ span: 5 }}
-        wrapperCol={{ span: 15 }}
-        label="用户名"
-      >
+    <Modal title="新建用户" visible={modalVisible} onOk={okHandle} onCancel={() => handleModalVisible()}>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="用户名">
         {form.getFieldDecorator('username', {
           rules: [{ required: true, message: 'Please input user\'s name...' }],
         })(
           <Input placeholder="请输入" />
         )}
       </FormItem>
-      <FormItem
-        labelCol={{ span: 5 }}
-        wrapperCol={{ span: 15 }}
-        label="密码"
-      >
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="密码">
         {form.getFieldDecorator('password', {
           rules: [{ required: false, message: 'Please input the password...' }],
         })(
           <Input placeholder="请输入"  type='password' />
         )}
       </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="从属于">
+        {form.getFieldDecorator('belongTo', {
+          rules: [{ required: false, message: 'Please input the super...' }],
+        })(
+          <Cascader changeOnSelect />
+        )}
+      </FormItem>      
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
         {form.getFieldDecorator('type')(
           <Select defaultValue="部门" style={{ width: '100%' }}>
@@ -62,7 +56,7 @@ const CreateForm = Form.create()((props) => {
         )}
       </FormItem>
     </Modal>
-  );
+  ); //options={options} onChange={onChange} 
 });
 
 @connect(({ party, loading, }) => ({
@@ -377,20 +371,20 @@ export default class TableList extends PureComponent {
     //var treeData = toTreeData(list);
     //alert(JSON.stringify(list));
     //checkable
-    return (
-      <Tree
-        onExpand={this.onExpand}
-        expandedKeys={this.state.expandedKeys}
-        autoExpandParent={this.state.autoExpandParent}
-        loading={loading}
-        onCheck={this.onCheck}
-        checkedKeys={this.state.checkedKeys}
-        onSelect={this.onSelect}
-        selectedKeys={this.state.selectedKeys}
-      >
-        {this.renderTreeNodes(list)}
-      </Tree>
-    );
+      return (
+        <Tree
+          onExpand={this.onExpand}
+          expandedKeys={this.state.expandedKeys}
+          autoExpandParent={this.state.autoExpandParent}
+          loading={loading}
+          onCheck={this.onCheck}
+          checkedKeys={this.state.checkedKeys}
+          onSelect={this.onSelect}
+          selectedKeys={this.state.selectedKeys}
+        >
+          {this.renderTreeNodes(list)}
+        </Tree>
+      );
   }
   
   render() {
