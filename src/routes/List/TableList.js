@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Cascader, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
+import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import StandardTable from '../../components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 //import { toTreeData } from '../../utils/utils';
@@ -13,51 +13,72 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 
 const { Header, Content, Footer, Sider } = Layout;
 //const SubMenu = Menu.SubMenu;
+//const TreeNode2 = TreeSelect.TreeNode;
 const TreeNode = Tree.TreeNode;
 
-const CreateForm = Form.create()((props) => {
-  const { modalVisible, form, handleAdd, handleModalVisible } = props;
-  const okHandle = () => {
-    form.validateFields((err, fieldsValue) => {
+//CreateForm = Form.create()((props) => {
+@Form.create()
+class PartyForm extends PureComponent {
+  state = {
+    treeSelectValue: undefined,
+  };
+
+  onChange = (value) => {
+    this.setState({treeSelectValue: value});
+  }
+  okHandle = () => {
+    this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
-      handleAdd(fieldsValue);
+      this.props.handleAdd(fieldsValue);
     });
   };
-  return (
-    <Modal title="新建用户" visible={modalVisible} onOk={okHandle} onCancel={() => handleModalVisible()}>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="用户名">
-        {form.getFieldDecorator('username', {
-          rules: [{ required: true, message: 'Please input user\'s name...' }],
-        })(
-          <Input placeholder="请输入" />
-        )}
-      </FormItem>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="密码">
-        {form.getFieldDecorator('password', {
-          rules: [{ required: false, message: 'Please input the password...' }],
-        })(
-          <Input placeholder="请输入"  type='password' />
-        )}
-      </FormItem>
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="从属于">
-        {form.getFieldDecorator('belongTo', {
-          rules: [{ required: false, message: 'Please input the super...' }],
-        })(
-          <Cascader changeOnSelect />
-        )}
-      </FormItem>      
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
-        {form.getFieldDecorator('type')(
-          <Select defaultValue="部门" style={{ width: '100%' }}>
-            <Option value="员工">员工</Option>
-            <Option value="部门">部门</Option>
-            <Option value="项目">项目</Option>
-          </Select>
-        )}
-      </FormItem>
-    </Modal>
-  ); //options={options} onChange={onChange} 
-});
+  
+  render(){
+    const { list, modalVisible, form, handleAdd, handleModalVisible } = this.props;
+    return (
+      <Modal title="新建用户" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="用户名">
+          {form.getFieldDecorator('username', {
+            rules: [{ required: true, message: 'Please input user\'s name...' }],
+          })(
+            <Input placeholder="请输入" />
+          )}
+        </FormItem>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="密码">
+          {form.getFieldDecorator('password', {
+            rules: [{ required: false, message: 'Please input the password...' }],
+          })(
+            <Input placeholder="请输入"  type='password' />
+          )}
+        </FormItem>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="从属于">
+          {form.getFieldDecorator('pid', {
+            rules: [{ required: false, message: 'Please input the super...' }],
+          })(
+            <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.treeSelectValue} treeDefaultExpandAll treeData={list} showSearch searchPlaceholder='搜索部门' onChange={this.onChange} style={{ width: '100%' }} />
+          )}
+        </FormItem>      
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
+          {form.getFieldDecorator('type')(
+            <Select defaultValue="部门" style={{ width: '100%' }}>
+              <Option value="员工">员工</Option>
+              <Option value="部门">部门</Option>
+              <Option value="项目">项目</Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="手机号">
+          {form.getFieldDecorator('mobile', {
+            rules: [{ required: true, message: 'Please input user\'s mobile...' }],
+          })(
+            <Input placeholder="请输入" />
+          )}
+        </FormItem>        
+      </Modal>
+    ); //options={options} onChange={onChange} 
+  }
+}
+
 
 @connect(({ party, loading, }) => ({
   party,
@@ -72,12 +93,13 @@ export default class TableList extends PureComponent {
     selectedRows: [],
     formValues: {},
     //for tree
-    expandedKeys: ['0-0-0', '0-0-1'],
+    expandedKeys: [],
     autoExpandParent: true,
-    checkedKeys: ['0-0-0'],
+    checkedKeys: [],
     selectedKeys: [],
+    //treeSelectValue: '',
   };
-
+  
   componentDidMount() {
     // eslint-disable-next-line
     // alert(global.currentUser.name);
@@ -115,6 +137,10 @@ export default class TableList extends PureComponent {
     if (sorter.field) {
       params.sorter = `${sorter.field}_${sorter.order}`;
     }
+    
+    //dispatch({
+    //   type: 'party/fetchDept',
+    //});
 
     dispatch({
       type: 'party/fetch',
@@ -211,6 +237,10 @@ export default class TableList extends PureComponent {
       // },
     });
 
+    this.props.dispatch({
+      type: 'party/fetchDept',
+    });
+
     message.success('添加成功:' + JSON.stringify(fields));
     this.setState({
       modalVisible: false,
@@ -218,7 +248,7 @@ export default class TableList extends PureComponent {
   }
 
   onExpand = (expandedKeys) => {
-    console.log('onExpand', arguments);
+    //console.log('onExpand', arguments);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
     this.setState({
@@ -356,7 +386,7 @@ export default class TableList extends PureComponent {
     return data.map((item) => {
       if (item.children) {
         return (
-          <TreeNode title={item.title} key={item.key} dataRef={item}>
+          <TreeNode title={item.label} key={item.value} dataRef={item}>
             {this.renderTreeNodes(item.children)}
           </TreeNode>
         );
@@ -371,24 +401,26 @@ export default class TableList extends PureComponent {
     //var treeData = toTreeData(list);
     //alert(JSON.stringify(list));
     //checkable
-      return (
-        <Tree
-          onExpand={this.onExpand}
-          expandedKeys={this.state.expandedKeys}
-          autoExpandParent={this.state.autoExpandParent}
-          loading={loading}
-          onCheck={this.onCheck}
-          checkedKeys={this.state.checkedKeys}
-          onSelect={this.onSelect}
-          selectedKeys={this.state.selectedKeys}
-        >
-          {this.renderTreeNodes(list)}
-        </Tree>
-      );
+    //message.success("renderDept......");
+    return (
+      <Tree
+        defaultExpandAll
+        onExpand={this.onExpand}
+        expandedKeys={this.state.expandedKeys}
+        autoExpandParent={this.state.autoExpandParent}
+        loading={loading}
+        onCheck={this.onCheck}
+        checkedKeys={this.state.checkedKeys}
+        onSelect={this.onSelect}
+        selectedKeys={this.state.selectedKeys}
+      >
+        {this.renderTreeNodes(list)}
+      </Tree>
+    );
   }
   
   render() {
-    const { party: { data }, loading } = this.props;
+    const { party: { data, dept: {list} }, loading } = this.props;
     const { selectedRows, modalVisible } = this.state;
 
     const menu = (
@@ -438,14 +470,16 @@ export default class TableList extends PureComponent {
                   data={data}
                   onSelectRow={this.handleSelectRows}
                   onChange={this.handleStandardTableChange}
+                  onEdit={this.handleModalVisible}
                   />
               </div>
             </Card>
           </Content>
-          <CreateForm
+          <PartyForm
             {...parentMethods}
             modalVisible={modalVisible}
-            />
+            list={list}
+          />
         </Layout>
       </PageHeaderLayout>
     );

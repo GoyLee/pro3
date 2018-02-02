@@ -1,13 +1,13 @@
 //树型组件（类似树形菜单）数据格式化的问题，由后台把原始查询的数据直接返回给前端，父子关系并未构建，
 //因此需要前端JS来完成，后台返回的数据和下面的测试数据相似。
 var data=[  
-    {_id:1,belongTo:0,title:'A'},  //belongTo, 父节点的_id
-    {_id:2,belongTo:4,title:"E[父C]"},  
-    {_id:3,belongTo:7,title:"G[父F]"},  
-    {_id:4,belongTo:1,title:"C[父A]"},  
-    {_id:5,belongTo:6,title:"D[父B]"},  
-    {_id:6,belongTo:0,title:'B'},  
-    {_id:7,belongTo:4,title:"F[父C]"}  
+    {_id:1,pid:0,title:'A'},  //pid, 父节点的_id
+    {_id:2,pid:4,title:"E[父C]"},  
+    {_id:3,pid:7,title:"G[父F]"},  
+    {_id:4,pid:1,title:"C[父A]"},  
+    {_id:5,pid:6,title:"D[父B]"},  
+    {_id:6,pid:0,title:'B'},  
+    {_id:7,pid:4,title:"F[父C]"}  
     ];  
 
 //关键变量pos，用于保存每个已添加到tree中的节点在tree中位置信息，
@@ -19,7 +19,7 @@ function toTreeData(data){
     var tree=[];  
     var i=0;  
     while(data.length!=0){  
-        if(data[i].belongTo==0){ //这是顶级节点 
+        if(data[i].pid==0){ //这是顶级节点 
             tree.push({  //把顶级节点放入tree中
                 key:data[i]._id,  
                 title:data[i].username,  
@@ -29,7 +29,7 @@ function toTreeData(data){
             data.splice(i,1); //从data中删除该节点
             i--;  
         }else{  // 当前节点是子节点
-            var posArr=pos[data[i].belongTo];  //posArr = GET 当前节点的父节点在tree中位置信息，形如[0,3]
+            var posArr=pos[data[i].pid];  //posArr = GET 当前节点的父节点在tree中位置信息，形如[0,3]
             if(posArr!=undefined){  //if 父节点已经在tree中，
                   
                 var obj=tree[posArr[0]];  //得到父节点所属的顶级节点

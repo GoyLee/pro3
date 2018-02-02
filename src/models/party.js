@@ -34,6 +34,7 @@ export default {
       // eslint-disable-next-line
       //console.log(JSON.stringify(data));
     },
+    //add POST后的response会更新state！
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addParty, payload);
       yield put({

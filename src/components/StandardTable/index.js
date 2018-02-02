@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import moment from 'moment';
-import { Table, Alert, Badge, Divider } from 'antd';
+import { Table, Alert, Badge, Divider, message } from 'antd';
 import styles from './index.less';
 
 const statusMap = ['default', 'processing', 'success', 'error'];
@@ -44,17 +44,16 @@ class StandardTable extends PureComponent {
     const { selectedRowKeys, totalCallNo } = this.state;
     const { data: { list, pagination }, loading } = this.props;
 
-    const status = ['关闭', '运行中', '已上线', '异常'];
+    const status = ['正常', '兼职', '离职', '停职'];
 
     const columns = [
       {
-        title: '更新日期',
-        dataIndex: 'updatedAt',
-        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-      },
-      {
         title: '用户名',
         dataIndex: 'username',
+      },
+      {
+        title: '密码',
+        dataIndex: 'password',
       },
       {
         title: '类别',
@@ -64,8 +63,12 @@ class StandardTable extends PureComponent {
         //render: val => `${val} 万`,
       },
       {
-        title: '密码',
-        dataIndex: 'password',
+        title: '归属',
+        dataIndex: 'pid',
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
         /*
         filters: [
           {
@@ -90,10 +93,37 @@ class StandardTable extends PureComponent {
         },*/
       },
       {
-        title: '验证方',
-        dataIndex: 'provider',
+        title: '更新日期',
+        dataIndex: 'updatedAt',
+        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '手机号',
+        dataIndex: 'mobile',
         sorter: true,
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '操作',
+        //dataIndex: 'operation',
+        //record中是list中的一条记录
+        render: (text, record) => {
+          return (
+            <Fragment>
+              <a onClick={() => this.props.onEdit(true)}>编辑</a>
+              <Divider type="vertical" />
+              <a href="">删除</a>
+            </Fragment>
+            //<a onClick={() => message.success(record._id)}>编辑</a>
+            //<a onClick={() => this.save(record.key)}>Save</a>    
+            //this.state.dataSource.length > 1 ?
+            //(
+              //<Popconfirm title="Sure to delete?" onConfirm={() => this.onDelete(record.key)}>
+              //  <a href="#">Delete</a>
+              //</Popconfirm>
+            //) : null
+          );
+        },
       },
       /*
       {
@@ -107,6 +137,11 @@ class StandardTable extends PureComponent {
         ),
       },*/
     ];
+
+    //onDelete = (key) => {
+    //  const dataSource = [...this.state.dataSource];
+    //  this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
+    //}
 
     const paginationProps = {
       showSizeChanger: true,
