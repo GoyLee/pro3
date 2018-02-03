@@ -110,7 +110,7 @@ class StandardTable extends PureComponent {
         render: (text, record) => {
           return (
             <Fragment>
-              <a onClick={() => this.props.onEdit(true)}>编辑</a>
+              <a onClick={() => this.props.onEdit(record)}>编辑</a>
               <Divider type="vertical" />
               <a href="">删除</a>
             </Fragment>
@@ -164,7 +164,7 @@ class StandardTable extends PureComponent {
             message={(
               <div>
                 已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
-                服务调用总计 <span style={{ fontWeight: 600 }}>{totalCallNo}</span> 万
+                用户总计 <span style={{ fontWeight: 600 }}>{totalCallNo}</span> 万
                 <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>清空</a>
               </div>
             )}

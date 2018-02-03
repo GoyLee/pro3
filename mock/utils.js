@@ -9,11 +9,11 @@ export const imgMap = {
 // refers: https://www.sitepoint.com/get-url-parameters-with-javascript/
 export function getUrlParams(url) {
   const d = decodeURIComponent;
-  let queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+  let queryString = url ? url.split('?')[1] : window.location.search.slice(1); //获得url?之后的参数字符串
   const obj = {};
   if (queryString) {
     queryString = queryString.split('#')[0]; // eslint-disable-line
-    const arr = queryString.split('&');
+    const arr = queryString.split('&'); //获得按‘&’分割后的array
     for (let i = 0; i < arr.length; i += 1) {
       const a = arr[i].split('=');
       let paramNum;
@@ -22,7 +22,7 @@ export function getUrlParams(url) {
         return '';
       });
       const paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
-      if (obj[paramName]) {
+      if (obj[paramName]) { 
         if (typeof obj[paramName] === 'string') {
           obj[paramName] = d([obj[paramName]]);
         }

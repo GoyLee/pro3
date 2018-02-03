@@ -14,6 +14,7 @@ export async function queryDept(params) {
 }
 
 export async function queryParty(params) {
+  //alert(stringify(params));
   return request(`/api/party?${stringify(params)}`);
 }
 
@@ -33,6 +34,16 @@ export async function addParty(params) {
     body: {
       ...params,
       method: 'post',
+    },
+  });
+}
+
+export async function updateParty(params) {
+  return request('/api/party', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'update',
     },
   });
 }

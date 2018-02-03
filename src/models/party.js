@@ -1,9 +1,11 @@
-import { queryDept, queryParty, removeParty, addParty } from '../services/api';
+import { queryDept, queryParty, removeParty, addParty, updateParty } from '../services/api';
 
 export default {
   namespace: 'party',
 
   state: {
+    record: {},
+    //recordNew: true,
     dept: {
       list: [],
       currentDept: '',
@@ -15,7 +17,7 @@ export default {
   },
 
   effects: {
-    *fetchDept({ payload }, { call, put }) {
+    *fetchDept({ payload }, { call, put }) { //获取部门树tree，not a plain list.
       const response = yield call(queryDept, payload);
       yield put({
         type: 'saveDept',
@@ -43,6 +45,15 @@ export default {
       });
       if (callback) callback();
     },
+    //add POST后的response会更新state！
+    *update({ payload, callback }, { call, put }) {
+      const response = yield call(updateParty, payload);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+      if (callback) callback();
+    },
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(removeParty, payload);
       yield put({
@@ -64,6 +75,12 @@ export default {
       return {
         ...state,
         dept: action.payload,
+      };
+    },
+    setRecord(state, action) {
+      return {
+        ...state,
+        record: action.payload,
       };
     },
   },
