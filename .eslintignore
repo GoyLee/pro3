@@ -2,6 +2,7 @@
 # Ignore built files except build/index.js
 # build/*
 # !build/index.js
+# 下面关闭了代码检查！TODO:研究eslint，再打开！
 src/*
 mock/*
 
