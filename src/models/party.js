@@ -4,7 +4,7 @@ export default {
   namespace: 'party',
 
   state: {
-    record: {},
+    record: {}, //在list传给form的记录缓存
     //recordNew: true,
     dept: {
       list: [],

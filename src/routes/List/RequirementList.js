@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
-import StandardTable from '../../components/StandardTable';
+import RequirementTable from '../../components/RequirementTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 //import { toTreeData } from '../../utils/utils';
 
@@ -14,13 +14,12 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 const { Header, Content, Footer, Sider } = Layout;
 //const SubMenu = Menu.SubMenu;
 //const TreeNode2 = TreeSelect.TreeNode;
-const TreeNode = Tree.TreeNode;
+//const TreeNode = Tree.TreeNode;
 
 //CreateForm = Form.create()((props) => {
-@connect(({party}) => ({
-  record: party.record,
-  //recordNew: party.recordNew,
-  deptTree: party.dept.list,
+@connect(({requirement}) => ({
+  record: requirement.record,
+  //deptTree: requirement.dept.list,
 }))
 @Form.create({
   onFieldsChange(props, changedFields) {
@@ -30,11 +29,11 @@ const TreeNode = Tree.TreeNode;
     if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
       return {
         code: Form.createFormField({ ...props.record.code, value: props.record.code,}),
-        username: Form.createFormField({ ...props.record.username, value: props.record.username,}),
+        name: Form.createFormField({ ...props.record.name, value: props.record.name,}),
         pid: Form.createFormField({ ...props.record.pid, value: props.record.pid,}),
-        password: Form.createFormField({ ...props.record.password, value: props.record.password,}),
+        desc: Form.createFormField({ ...props.record.desc, value: props.record.desc,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
-        mobile: Form.createFormField({ ...props.record.mobile, value: props.record.mobile,}),
+        provider: Form.createFormField({ ...props.record.provider, value: props.record.provider,}),
         status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
       };
     }
@@ -55,7 +54,7 @@ class PartyForm extends PureComponent {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
       this.props.dispatch({
-        type: 'party/setRecord',
+        type: 'requirement/setRecord',
         payload: fieldsValue, // {
       });
       this.props.handleAdd(fieldsValue);
@@ -63,11 +62,11 @@ class PartyForm extends PureComponent {
   };
   
   render(){
-    const { record, deptTree, modalVisible, form, handleAdd, handleModalVisible } = this.props;
+    const { record, modalVisible, form, handleAdd, handleModalVisible } = this.props; //deptTree,
     return (
-      <Modal title="新建用户" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
+      <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
         <pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="工号">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="序号">
           {form.getFieldDecorator('code', {
             initialValue: '120001',
             rules: [{ required: false, message: 'Please input user\'s code...' }],
@@ -75,23 +74,23 @@ class PartyForm extends PureComponent {
             <Input placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="用户名">
-          {form.getFieldDecorator('username', {
-            initialValue: 'user',
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="名称">
+          {form.getFieldDecorator('name', {
+            initialValue: '',
             rules: [{ required: true, message: 'Please input user\'s name...' }],
           })(
             <Input placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="密码">
-          {form.getFieldDecorator('password', {
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
+          {form.getFieldDecorator('desc', {
             rules: [{ required: false, message: 'Please input the password...' }],
           })(
-            <Input placeholder="请输入"  type='password' />
+            <Input placeholder="请输入"  />
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="手机号">
-          {form.getFieldDecorator('mobile', {
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
+          {form.getFieldDecorator('provider', {
             rules: [{ required: false, message: 'Please input user\'s mobile...' }],
           })(
             <Input placeholder="请输入" />
@@ -101,15 +100,17 @@ class PartyForm extends PureComponent {
           {form.getFieldDecorator('pid', {
             rules: [{ required: false, message: 'Please input the super...' }],
           })(
-            <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.treeSelectValue} treeDefaultExpandAll treeData={deptTree} showSearch searchPlaceholder='搜索部门' onChange={this.onChange} style={{ width: '100%' }} />
+            <Input placeholder="请输入" />
+//            <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.treeSelectValue} treeDefaultExpandAll treeData={deptTree} showSearch searchPlaceholder='搜索部门' onChange={this.onChange} style={{ width: '100%' }} />
           )}
         </FormItem>      
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
-          {form.getFieldDecorator('type',{initialValue: '部门'})( //~defaultValue="部门"
+          {form.getFieldDecorator('type',{initialValue: '应用'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>
-              <Option value="员工">员工</Option>
-              <Option value="部门">部门</Option>
-              <Option value="项目">项目</Option>
+              <Option value="应用">应用</Option>
+              <Option value="设备">设备</Option>
+              <Option value="服务">服务</Option>
+              <Option value="网络">网络</Option>
             </Select>
           )}
         </FormItem>
@@ -117,9 +118,9 @@ class PartyForm extends PureComponent {
           {form.getFieldDecorator('status',{initialValue: '正常'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>
               <Option value="正常">正常</Option>
-              <Option value="离职">离职</Option>
-              <Option value="兼职">兼职</Option>
-              <Option value="停职">停职</Option>
+              <Option value="取消">取消</Option>
+              <Option value="挂起">挂起</Option>
+              <Option value="关闭">关闭</Option>
             </Select>
           )}
         </FormItem>
@@ -128,9 +129,9 @@ class PartyForm extends PureComponent {
   }
 }
 
-@connect(({ party, loading, }) => ({
-  party,
-  loading: loading.models.party,
+@connect(({ requirement, loading, }) => ({
+  requirement,
+  loading: loading.models.requirement,
 }))
 @Form.create()
 export default class TableList extends PureComponent {
@@ -140,19 +141,10 @@ export default class TableList extends PureComponent {
 
     expandForm: false,
     collapsed: false,
-    formValues: {}, //search conditions from search forms
+    //formValues: {}, //search conditions from search forms
     //for standardlist
     selectedRows: [],
     queryParams: {}, 
-    //sorter: '',
-    //selectedDept: '',
-    
-    //for dept tree
-    expandedKeys: [],
-    autoExpandParent: true,
-    checkedKeys: [],
-    selectedKeys: [],
-    //treeSelectValue: '',
   };
   
   componentDidMount() {
@@ -160,11 +152,11 @@ export default class TableList extends PureComponent {
     // alert(global.currentUser.name);
     const { dispatch } = this.props;
     dispatch({
-      type: 'party/fetchDept',
+      type: 'requirement/fetchDept',
     });
 
     dispatch({
-      type: 'party/fetch',
+      type: 'requirement/fetch',
     });
 
     //dispatch({ // Myy
@@ -175,7 +167,7 @@ export default class TableList extends PureComponent {
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
     const { dispatch } = this.props;
-    const { formValues } = this.state;
+    //const { formValues } = this.state;
     //message.success(JSON.stringify(filtersArg));
     //把对象中的每个属性的值由数组变成了由‘,’分隔的字符串
     const filters = Object.keys(filtersArg).reduce((obj, key) => {
@@ -199,11 +191,11 @@ export default class TableList extends PureComponent {
     this.setState({ queryParams: params})
     //message.success(JSON.stringify(params));
     dispatch({
-      type: 'party/fetch',
+      type: 'requirement/fetch',
       payload: params,
     });
     //dispatch({
-    //   type: 'party/fetchDept',
+    //   type: 'requirement/fetchDept',
     //});
   }
 
@@ -215,7 +207,7 @@ export default class TableList extends PureComponent {
       queryParams: {},
     });
     dispatch({
-      type: 'party/fetch',
+      type: 'requirement/fetch',
       payload: {},
     });
   }
@@ -235,7 +227,7 @@ export default class TableList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'party/remove',
+          type: 'requirement/remove',
           payload: {
             id: selectedRows.map(row => row._id).join(','),
           },
@@ -279,7 +271,7 @@ export default class TableList extends PureComponent {
       }
       this.setState({ queryParams: params});
       dispatch({
-        type: 'party/fetch',
+        type: 'requirement/fetch',
         payload: params, //不能用queryParams, 因其是异步更新，现在还是旧值！
       });
     });
@@ -300,7 +292,7 @@ export default class TableList extends PureComponent {
   handleAdd = (fields) => {
     if(this.state.recordNew) { //Create a new record
       this.props.dispatch({
-        type: 'party/add',
+        type: 'requirement/add',
         payload: fields, // {
           // username: fields.username, //TODO: 试一试仅fields.username是否可以！
           // password: fields.password,
@@ -308,15 +300,15 @@ export default class TableList extends PureComponent {
         // },
       });
     } else { //Update exist record
-      const { party: { record }, loading } = this.props;
+      const { requirement: { record }, loading } = this.props;
       this.props.dispatch({
-        type: 'party/update',
+        type: 'requirement/update',
         payload: {...record, ...fields}, 
       });    
     }
-    this.props.dispatch({
-      type: 'party/fetchDept',
-    });
+    //this.props.dispatch({
+    //  type: 'requirement/fetchDept',
+    //});
 
     message.success('添加成功:' + JSON.stringify(fields));
     this.setState({
@@ -325,7 +317,7 @@ export default class TableList extends PureComponent {
   }
   onCreate = () => { //新增记录
     this.props.dispatch({
-      type: 'party/setRecord',
+      type: 'requirement/setRecord',
       payload: {}, // {
     });
     this.setState({recordNew: true});
@@ -333,7 +325,7 @@ export default class TableList extends PureComponent {
   }
   onEdit = (record) => { //修改记录
     this.props.dispatch({
-      type: 'party/setRecord',
+      type: 'requirement/setRecord',
       payload: record, // {
     });
     this.setState({recordNew: false});
@@ -341,7 +333,7 @@ export default class TableList extends PureComponent {
   }
   onRemove = (record) => { //删除记录
     this.props.dispatch({
-      type: 'party/remove',
+      type: 'requirement/remove',
       payload: {id: record._id}, // {
     });
   
@@ -376,7 +368,7 @@ export default class TableList extends PureComponent {
       //message.success(selectedKeys.length);
       //message.success(params.selectedDept);
       this.props.dispatch({
-        type: 'party/fetch',
+        type: 'requirement/fetch',
         payload: params,
       });
       this.setState({ selectedKeys });
@@ -496,55 +488,9 @@ export default class TableList extends PureComponent {
   renderForm() {
     return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
-/*
-  renderTreeNodes = (data) => {
-    return data.map((item) => {
-      return (
-        <TreeNode title={item.label} key={item.value} dataRef={item}>
-          { if (item.children) { this.renderTreeNodes(item.children)}}
-        </TreeNode>
-      )
-    });
-  }*/
-  renderTreeNodes = (data) => {
-    return data.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode title={item.label} key={item.value} disableCheckbox>
-            {this.renderTreeNodes(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode title={item.label} key={item.value}  disableCheckbox/>;
-    });
-  }
-  //{...item} dataRef={item}
-  renderDept() {
-    const { party: { dept: {list} }, loading } = this.props;
-    //var treeData = list.map( (item) => {return {title:item.username, key: item._id,};} );
-    //var treeData = toTreeData(list);
-    //alert(JSON.stringify(list));
-    //checkable
-    //onCheck={this.onCheck}
-    //checkedKeys={this.state.checkedKeys}
-    //message.success("renderDept......");
-    return (
-      <Tree
-        defaultExpandAll
-        onExpand={this.onExpand}
-        expandedKeys={this.state.expandedKeys}
-        autoExpandParent={this.state.autoExpandParent}
-        loading={loading}
-        onSelect={this.onSelect}
-        selectedKeys={this.state.selectedKeys}
-      >
-        {this.renderTreeNodes(list)}
-      </Tree>
-    );
-  }
   
   render() {
-    const { party: { data }, loading } = this.props;
+    const { requirement: { data }, loading } = this.props;
     const { selectedRows, modalVisible } = this.state;
 
     const menu = (
@@ -560,13 +506,8 @@ export default class TableList extends PureComponent {
     };
 
     return (
-      <PageHeaderLayout title="组织机构和人员">
-        <Layout>
-          <Sider width={250} style={{ background: '#fff', margin: 2}}>
-            {this.renderDept()}
-          </Sider>
-          <Content style={{ background: '#fff', margin: 2}}>
-            <Card bordered={false}>
+      <PageHeaderLayout title="信息化需求管理">
+        <Card bordered={false}>
               <div className={styles.tableList}>
                 <div className={styles.tableListForm}>
                   {this.renderForm()}
@@ -598,13 +539,11 @@ export default class TableList extends PureComponent {
                   onRemove={this.onRemove}
                   />
               </div>
-            </Card>
-          </Content>
-          <PartyForm
+        </Card>
+        <PartyForm
             {...parentMethods}
             modalVisible={modalVisible}
-          />
-        </Layout>
+        />
       </PageHeaderLayout>
     );
   }

@@ -35,9 +35,12 @@ const menuData = [{
   icon: 'table',
   path: 'list',
   children: [{
-    name: '查询表格',
+    name: '用户查询',
     path: 'table-list',
   }, {
+    name: '需求跟踪',
+    path: 'requirement-list',
+  },{
     name: '标准列表',
     path: 'basic-list',
   }, {

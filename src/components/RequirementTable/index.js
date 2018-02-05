@@ -3,8 +3,8 @@ import moment from 'moment';
 import { Table, Alert, Badge, Divider, Popconfirm, message } from 'antd';
 import styles from './index.less';
 
-const statusMap = {'停职':'default', '兼职':'processing', '正常':'success', '离职':'error'};  
-class StandardTable extends PureComponent {
+const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
+class RequirementTable extends PureComponent {
   state = {
     selectedRowKeys: [],
     totalNumber: 0, //可用于显示表格中已选择行的某数量字段的汇总值
@@ -44,27 +44,27 @@ class StandardTable extends PureComponent {
     const { selectedRowKeys, totalNumber } = this.state;
     const { data: { list, pagination }, loading } = this.props;
 
-    const status = ['正常', '兼职', '离职', '停职'];
+    const status = ['正常', '关闭', '挂起', '取消'];
 
     const columns = [
       {
-        title: '工号',
+        title: '序号',
         dataIndex: 'code',
       },
       {
-        title: '用户名',
-        dataIndex: 'username',
+        title: '名称',
+        dataIndex: 'name',
       },
       {
-        title: '手机号',
-        dataIndex: 'mobile',
+        title: '描述',
+        dataIndex: 'desc',
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
       },
       {
         title: '类别',
         dataIndex: 'type',
         sorter: true,
-        align: 'right',
+        //align: 'right',
         //render: val => `${val} 万`,
       },
       //{
@@ -168,7 +168,7 @@ class StandardTable extends PureComponent {
             message={(
               <div>
                 已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
-                用户总计 <span style={{ fontWeight: 600 }}>{pagination.total}</span> 个&nbsp;&nbsp;
+                需求总计 <span style={{ fontWeight: 600 }}>{pagination.total}</span> 个&nbsp;&nbsp;
                 选择总额 <span style={{ fontWeight: 600 }}>{totalNumber}</span> 个
                 <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>清空</a>
               </div>
@@ -191,4 +191,4 @@ class StandardTable extends PureComponent {
   }
 }
 
-export default StandardTable;
+export default RequirementTable;
