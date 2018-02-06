@@ -9,15 +9,14 @@ export async function queryActivities() {
   return request('/api/activities');
 }
 
+//Party=============================================================================
 export async function queryDept(params) {
   return request(`/api/dept?${stringify(params)}`);
 }
-
 export async function queryParty(params) {
   //alert(stringify(params));
   return request(`/api/party?${stringify(params)}`);
 }
-
 export async function removeParty(params) {
   return request('/api/party', {
     method: 'POST',
@@ -27,7 +26,6 @@ export async function removeParty(params) {
     },
   });
 }
-
 export async function addParty(params) {
   return request('/api/party', {
     method: 'POST',
@@ -37,7 +35,6 @@ export async function addParty(params) {
     },
   });
 }
-
 export async function updateParty(params) {
   return request('/api/party', {
     method: 'POST',
@@ -47,6 +44,39 @@ export async function updateParty(params) {
     },
   });
 }
+//Requirement========================================================
+export async function queryRequirement(params) {
+  //alert(stringify(params));
+  return request(`/api/requirement?${stringify(params)}`);
+}
+export async function removeRequirement(params) {
+  return request('/api/requirement', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'delete',
+    },
+  });
+}
+export async function addRequirement(params) {
+  return request('/api/requirement', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+export async function updateRequirement(params) {
+  return request('/api/requirement', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'update',
+    },
+  });
+}
+//====================================================================
 
 export async function fakeSubmitForm(params) {
   return request('/api/forms', {

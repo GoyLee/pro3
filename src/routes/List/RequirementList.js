@@ -31,9 +31,9 @@ const { Header, Content, Footer, Sider } = Layout;
         code: Form.createFormField({ ...props.record.code, value: props.record.code,}),
         name: Form.createFormField({ ...props.record.name, value: props.record.name,}),
         pid: Form.createFormField({ ...props.record.pid, value: props.record.pid,}),
-        desc: Form.createFormField({ ...props.record.desc, value: props.record.desc,}),
+        project: Form.createFormField({ ...props.record.project, value: props.record.project,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
-        provider: Form.createFormField({ ...props.record.provider, value: props.record.provider,}),
+        demander: Form.createFormField({ ...props.record.demander, value: props.record.demander,}),
         status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
       };
     }
@@ -82,21 +82,21 @@ class PartyForm extends PureComponent {
             <Input placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
-          {form.getFieldDecorator('desc', {
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目">
+          {form.getFieldDecorator('project', {
             rules: [{ required: false, message: 'Please input the password...' }],
           })(
             <Input placeholder="请输入"  />
           )}
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
-          {form.getFieldDecorator('provider', {
+          {form.getFieldDecorator('demander', {
             rules: [{ required: false, message: 'Please input user\'s mobile...' }],
           })(
             <Input placeholder="请输入" />
           )}
         </FormItem>      
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="从属于">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属于">
           {form.getFieldDecorator('pid', {
             rules: [{ required: false, message: 'Please input the super...' }],
           })(
@@ -529,7 +529,7 @@ export default class TableList extends PureComponent {
                     )
                   }
                 </div>
-                <StandardTable
+                <RequirementTable
                   selectedRows={selectedRows}
                   loading={loading}
                   data={data}

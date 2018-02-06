@@ -140,12 +140,13 @@ export default function request(url, options) {
         dispatch(routerRedux.push('/exception/403'));
         return;
       }
-      if (status <= 504 && status >= 500) {
-        dispatch(routerRedux.push('/exception/500'));
-        return;
-      }
       if (status >= 404 && status < 422) {
         dispatch(routerRedux.push('/exception/404'));
+        return;
       }
+      //if (status <= 504 && status >= 500) {
+      dispatch(routerRedux.push('/exception/500'));
+      return;
+      //}
     });
 }

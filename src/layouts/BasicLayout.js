@@ -110,7 +110,8 @@ class BasicLayout extends React.PureComponent {
       window.history.replaceState(null, 'redirect', urlParams.href);
     } else {
       //return '/dashboard/analysis'; //逻辑“首页”
-      return '/list/table-list'; //逻辑“首页”
+      //return '/list/table-list'; //逻辑“首页”
+      return '/list/requirement-list'; //逻辑“首页”, 应是当前开发的页面
     }
     return redirect;
   }

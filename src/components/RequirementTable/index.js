@@ -56,8 +56,8 @@ class RequirementTable extends PureComponent {
         dataIndex: 'name',
       },
       {
-        title: '描述',
-        dataIndex: 'desc',
+        title: '提出人',
+        dataIndex: 'demander',
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
       },
       {
