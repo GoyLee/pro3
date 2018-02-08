@@ -10,6 +10,9 @@ export async function queryActivities() {
 }
 
 //Party=============================================================================
+export async function queryUserDept(params) {
+  return request(`/api/userdept?${stringify(params)}`);
+}
 export async function queryDept(params) {
   return request(`/api/dept?${stringify(params)}`);
 }

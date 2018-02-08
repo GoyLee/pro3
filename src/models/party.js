@@ -1,10 +1,11 @@
-import { queryDept, queryParty, removeParty, addParty, updateParty } from '../services/api';
+import { queryUserDept, queryDept, queryParty, removeParty, addParty, updateParty } from '../services/api';
 
 export default {
   namespace: 'party',
 
   state: {
     record: {}, //在list传给form的记录缓存
+    userDeptList: [],
     //recordNew: true,
     dept: {
       list: [],
@@ -17,6 +18,16 @@ export default {
   },
 
   effects: {
+    *fetchUserDept({ payload }, { call, put }) { //获取员工-部门树tree，not a plain list.
+      const response = yield call(queryUserDept, payload);
+      yield put({
+        type: 'saveUserDept',
+        payload: response,
+      });
+      // eslint-disable-next-line
+      //console.log(JSON.stringify(dept));
+    },
+    
     *fetchDept({ payload }, { call, put }) { //获取部门树tree，not a plain list.
       const response = yield call(queryDept, payload);
       yield put({
@@ -65,6 +76,12 @@ export default {
   },
 
   reducers: {
+    saveUserDept(state, action) {
+      return {
+        ...state,
+        userDeptList: action.payload,
+      };
+    },
     save(state, action) {
       return {
         ...state,

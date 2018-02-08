@@ -17,8 +17,9 @@ const { Header, Content, Footer, Sider } = Layout;
 //const TreeNode = Tree.TreeNode;
 
 //CreateForm = Form.create()((props) => {
-@connect(({requirement}) => ({
+@connect(({requirement, party}) => ({
   record: requirement.record,
+  userlist: party.usrDeptList,
   //deptTree: requirement.dept.list,
 }))
 @Form.create({
@@ -60,7 +61,14 @@ class PartyForm extends PureComponent {
       this.props.handleAdd(fieldsValue);
     });
   };
-  
+  componentDidMount() {
+    // eslint-disable-next-line
+    // alert(global.currentUser.name);
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'party/fetchUserDept',
+    });
+  }
   render(){
     const { record, modalVisible, form, handleAdd, handleModalVisible } = this.props; //deptTree,
     return (
@@ -151,9 +159,9 @@ export default class TableList extends PureComponent {
     // eslint-disable-next-line
     // alert(global.currentUser.name);
     const { dispatch } = this.props;
-    dispatch({
-      type: 'requirement/fetchDept',
-    });
+    //dispatch({
+    //  type: 'requirement/fetchDept',
+    //});
 
     dispatch({
       type: 'requirement/fetch',
