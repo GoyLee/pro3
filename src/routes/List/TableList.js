@@ -105,7 +105,7 @@ class PartyForm extends PureComponent {
           )}
         </FormItem>      
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
-          {form.getFieldDecorator('type',{initialValue: '部门'})( //~defaultValue="部门"
+          {form.getFieldDecorator('type',{initialValue: '员工'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>
               <Option value="员工">员工</Option>
               <Option value="部门">部门</Option>
@@ -317,6 +317,10 @@ export default class TableList extends PureComponent {
     this.props.dispatch({
       type: 'party/fetchDept',
     });
+    this.props.dispatch({
+      type: 'party/fetch',
+      payload: this.state.queryParams, 
+    });
 
     message.success('添加成功:' + JSON.stringify(fields));
     this.setState({
@@ -344,7 +348,10 @@ export default class TableList extends PureComponent {
       type: 'party/remove',
       payload: {id: record._id}, // {
     });
-  
+    this.props.dispatch({
+      type: 'party/fetch',
+      payload: this.state.queryParams, 
+    });
   }
   onExpand = (expandedKeys) => {
     //console.log('onExpand', arguments);

@@ -113,7 +113,7 @@ class StandardTable extends PureComponent {
             <Fragment>
               <a onClick={() => this.props.onEdit(record)}>编辑</a>
               <Divider type="vertical" />
-              <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record.key)}>
+              <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record)}>
                 <a href="#">删除</a>
               </Popconfirm>
             </Fragment>

@@ -43,22 +43,27 @@ class RequirementTable extends PureComponent {
   render() {
     const { selectedRowKeys, totalNumber } = this.state;
     const { data: { list, pagination }, loading } = this.props;
+    //message.success(JSON.stringify(pagination));
 
     const status = ['正常', '关闭', '挂起', '取消'];
 
     const columns = [
       {
-        title: '序号',
-        dataIndex: 'code',
-      },
-      {
-        title: '名称',
-        dataIndex: 'name',
+        title: '部门',
+        dataIndex: 'department',
       },
       {
         title: '提出人',
         dataIndex: 'demander',
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '需求',
+        dataIndex: 'reqname',
+      },
+      {
+        title: '项目群',
+        dataIndex: 'program',
       },
       {
         title: '类别',
@@ -113,7 +118,7 @@ class RequirementTable extends PureComponent {
             <Fragment>
               <a onClick={() => this.props.onEdit(record)}>编辑</a>
               <Divider type="vertical" />
-              <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record.key)}>
+              <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record)}>
                 <a href="#">删除</a>
               </Popconfirm>
             </Fragment>

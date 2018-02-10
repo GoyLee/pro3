@@ -1,11 +1,12 @@
-import { queryUserDept, queryDept, queryParty, removeParty, addParty, updateParty } from '../services/api';
+import { queryUserList, queryUserDept, queryDept, queryParty, removeParty, addParty, updateParty } from '../services/api';
 
 export default {
   namespace: 'party',
 
   state: {
     record: {}, //在list传给form的记录缓存
-    userDeptList: [],
+    userList: [],
+    userDept: {},
     //recordNew: true,
     dept: {
       list: [],
@@ -18,6 +19,15 @@ export default {
   },
 
   effects: {
+    *fetchUserList({ payload }, { call, put }) { //获取员工-部门树tree，not a plain list.
+      const response = yield call(queryUserList, payload);
+      yield put({
+        type: 'saveUserList',
+        payload: response,
+      });
+      // eslint-disable-next-line
+      //console.log(JSON.stringify(dept));
+    },
     *fetchUserDept({ payload }, { call, put }) { //获取员工-部门树tree，not a plain list.
       const response = yield call(queryUserDept, payload);
       yield put({
@@ -50,36 +60,42 @@ export default {
     //add POST后的response会更新state！
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addParty, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
+      //yield put({
+      //  type: 'save',
+      //  payload: response,
+      //});
       if (callback) callback();
     },
     //add POST后的response会更新state！
     *update({ payload, callback }, { call, put }) {
       const response = yield call(updateParty, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
+      //yield put({
+      //  type: 'save',
+      //  payload: response,
+      //});
       if (callback) callback();
     },
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(removeParty, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
+     // yield put({
+     //   type: 'save',
+      //  payload: response,
+      //});
       if (callback) callback();
     },
   },
 
   reducers: {
+    saveUserList(state, action) {
+      return {
+        ...state,
+        userList: action.payload,
+      };
+    },
     saveUserDept(state, action) {
       return {
         ...state,
-        userDeptList: action.payload,
+        userDept: action.payload,
       };
     },
     save(state, action) {

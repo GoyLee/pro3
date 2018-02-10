@@ -4,6 +4,7 @@ export default {
   namespace: 'requirement',
 
   state: {
+    demander: '',
     record: {}, //在list传给form的记录缓存
     //recordNew: true,
     dept: {
@@ -39,27 +40,15 @@ export default {
     //add POST后的response会更新state！
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addRequirement, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
       if (callback) callback();
     },
     //add POST后的response会更新state！
     *update({ payload, callback }, { call, put }) {
       const response = yield call(updateRequirement, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
       if (callback) callback();
     },
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(removeRequirement, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
       if (callback) callback();
     },
   },
@@ -75,6 +64,12 @@ export default {
       return {
         ...state,
         dept: action.payload,
+      };
+    },
+    setDemander(state, action) {
+      return {
+        ...state,
+        demander: action.payload,
       };
     },
     setRecord(state, action) {

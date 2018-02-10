@@ -9,6 +9,7 @@ import styles from './TableList.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const { TextArea } = Input;
 const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -17,101 +18,165 @@ const { Header, Content, Footer, Sider } = Layout;
 //const TreeNode = Tree.TreeNode;
 
 //CreateForm = Form.create()((props) => {
-@connect(({requirement, party}) => ({
+@connect(({requirement, party, user}) => ({
+  demander: requirement.demander,
   record: requirement.record,
-  userlist: party.usrDeptList,
+  userList: party.userList,
+  currentUser: user.currentUser,
+  userDept: party.userDept,
   //deptTree: requirement.dept.list,
 }))
 @Form.create({
   onFieldsChange(props, changedFields) {
+    const { dispatch, record } = props;
+    //message.success(JSON.stringify(changedFields.reqname.value));
+    //每个form.getFieldDecorator的字段都需保存到store
+    var fieldsValue = {
+      ...record,
+    }
+    if(changedFields.reqname) { 
+      fieldsValue = {
+        ...fieldsValue,
+        reqname: changedFields.reqname.value,
+      }
+    }
+    if(changedFields.program) { 
+      fieldsValue = {
+        ...fieldsValue,
+        program: changedFields.program.value,
+      }
+    }
+    if(changedFields.type) { 
+      fieldsValue = {
+        ...fieldsValue,
+        type: changedFields.type.value,
+      }
+    }
+    if(changedFields.status) { 
+      fieldsValue = {
+        ...fieldsValue,
+        status: changedFields.status.value,
+      }
+    }
+    dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
     //props.onChange(changedFields);
   },
   mapPropsToFields(props) { //绑定字段;
-    if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
+    //if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
       return {
-        code: Form.createFormField({ ...props.record.code, value: props.record.code,}),
-        name: Form.createFormField({ ...props.record.name, value: props.record.name,}),
-        pid: Form.createFormField({ ...props.record.pid, value: props.record.pid,}),
-        project: Form.createFormField({ ...props.record.project, value: props.record.project,}),
+        //每个form.getFieldDecorator的字段都需map
+        //department: Form.createFormField({ ...props.record.department, value: props.record.department,}),
+        reqname: Form.createFormField({ ...props.record.reqname, value: props.record.reqname,}),
+        program: Form.createFormField({ ...props.record.program, value: props.record.program,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
-        demander: Form.createFormField({ ...props.record.demander, value: props.record.demander,}),
+        //demander: Form.createFormField({ ...props.record.demander, value: props.record.demander,}),
         status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
       };
-    }
+    //}
   },
   onValuesChange(_, values) {
     // console.log(values);
   },
 })
 class PartyForm extends PureComponent {
-  state = {
-    treeSelectValue: undefined,
-  };
+  //state = {
+    //demanderValue: '',
+  //};
 
-  onChange = (value) => {
-    this.setState({treeSelectValue: value});
-  }
   okHandle = () => {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
-      this.props.dispatch({
-        type: 'requirement/setRecord',
-        payload: fieldsValue, // {
-      });
+      const { userList, record } = this.props;
+      //const user = userList.find((element) => (element.username === this.props.demander));
+      fieldsValue = { 
+        ...record,  //装填未更改字段
+        ...fieldsValue,
+        demander: this.props.demander, //user._id,
+        department: this.props.userDept.username, //._id,
+      }
+     
+      //this.props.dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
+      //修改数据库
       this.props.handleAdd(fieldsValue);
     });
   };
   componentDidMount() {
     // eslint-disable-next-line
     // alert(global.currentUser.name);
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'party/fetchUserDept',
-    });
+    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {}, });
+    //this.setState({demanderValue: this.props.currentUser.name});
   }
+
+  handleBlur = (value) => {
+  
+    //const user = userList.find((element) => (element.username === value));
+    //this.setState({demanderValue: user});
+  } 
+  handleChange = (value) => {
+    //message.success(JSON.stringify(value));
+    //if(!value){
+     // this.setState({demanderValue: record.demander});
+    //} else {
+    //  this.setState({demanderValue: value});
+    //}
+    this.props.dispatch({ type: 'requirement/setDemander', payload: value,}); 
+    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value}, });
+  } 
+  handleSelect = (value) => {
+    //message.success(JSON.stringify(value));
+    const { userList } = this.props;
+    const user = userList.find((element) => (element.username === value));
+    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: user.pid}, });
+    //this.setState({demanderValue: value});
+    //this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value.key}, });
+  } 
+  
   render(){
-    const { record, modalVisible, form, handleAdd, handleModalVisible } = this.props; //deptTree,
+    const { demander, userDept, userList, record, modalVisible, form, handleAdd, handleModalVisible } = this.props; //deptTree,
+    //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
       <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
         <pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="序号">
-          {form.getFieldDecorator('code', {
-            initialValue: '120001',
-            rules: [{ required: false, message: 'Please input user\'s code...' }],
-          })(
-            <Input placeholder="请输入"/>
-          )}
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
+          <Select
+            mode="combobox"
+            value={demander}
+            defaultActiveFirstOption={true}
+            showArrow={false}
+            filterOption={false}
+            style={{ width: '100%' }}
+            onChange={this.handleChange}
+            onSelect={this.handleSelect}
+          >
+            {userList.map(d => <Option key={d.username}>{d.username}</Option>)}
+          </Select>
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="名称">
-          {form.getFieldDecorator('name', {
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="部门">
+          <span className="ant-form-text">{userDept.username}</span>
+        </FormItem>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="需求">
+          {form.getFieldDecorator('reqname', {
             initialValue: '',
             rules: [{ required: true, message: 'Please input user\'s name...' }],
           })(
-            <Input placeholder="请输入"/>
+            <TextArea rows={4} placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目">
-          {form.getFieldDecorator('project', {
-            rules: [{ required: false, message: 'Please input the password...' }],
-          })(
-            <Input placeholder="请输入"  />
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目群">
+          {form.getFieldDecorator('program')(
+            <Select  style={{ width: '100%' }}>
+              <Option value="试飞一体化平台">试飞一体化平台</Option>
+              <Option value="试飞工作门户">试飞工作门户</Option>
+              <Option value="飞行运行控制系统">飞行运行控制系统</Option>
+              <Option value="试飞数据分析平台">试飞数据分析平台</Option>
+              <Option value="ERP实施">ERP实施</Option>
+              <Option value="试飞数据处理平台">试飞数据处理平台</Option>
+              <Option value="空地一体化分析平台">空地一体化分析平台</Option>
+              <Option value="终端设备">终端设备</Option>
+              <Option value="其他">其他</Option>
+            </Select>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
-          {form.getFieldDecorator('demander', {
-            rules: [{ required: false, message: 'Please input user\'s mobile...' }],
-          })(
-            <Input placeholder="请输入" />
-          )}
-        </FormItem>      
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属于">
-          {form.getFieldDecorator('pid', {
-            rules: [{ required: false, message: 'Please input the super...' }],
-          })(
-            <Input placeholder="请输入" />
-//            <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.treeSelectValue} treeDefaultExpandAll treeData={deptTree} showSearch searchPlaceholder='搜索部门' onChange={this.onChange} style={{ width: '100%' }} />
-          )}
-        </FormItem>      
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
           {form.getFieldDecorator('type',{initialValue: '应用'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>
@@ -133,20 +198,20 @@ class PartyForm extends PureComponent {
           )}
         </FormItem>
       </Modal>
-    ); //options={options} onChange={onChange} 
+    ); 
   }
 }
 
-@connect(({ requirement, loading, }) => ({
+@connect(({ requirement, loading, user }) => ({
   requirement,
   loading: loading.models.requirement,
+  currentUser: user.currentUser,
 }))
 @Form.create()
 export default class TableList extends PureComponent {
   state = {
     modalVisible: false, //是否显示编辑记录的对话框
-    recordNew: true, //是否“新增”记录
-
+    //recordNew: true, //是否“新增”记录
     expandForm: false,
     collapsed: false,
     //formValues: {}, //search conditions from search forms
@@ -298,53 +363,68 @@ export default class TableList extends PureComponent {
   }
 */
   handleAdd = (fields) => {
-    if(this.state.recordNew) { //Create a new record
+    if(this.props.requirement.record._id) { //Update exist record
+      //const { requirement: { record } } = this.props;
+      this.props.dispatch({
+        type: 'requirement/update',
+        payload: fields, 
+      });    
+      // username: fields.username, //TODO: 试一试仅fields.username是否可以！
+      // password: fields.password,
+      // type:
+      // },
+    } else { //Create a new record
       this.props.dispatch({
         type: 'requirement/add',
         payload: fields, // {
-          // username: fields.username, //TODO: 试一试仅fields.username是否可以！
-          // password: fields.password,
-          // type:
-        // },
       });
-    } else { //Update exist record
-      const { requirement: { record }, loading } = this.props;
-      this.props.dispatch({
-        type: 'requirement/update',
-        payload: {...record, ...fields}, 
-      });    
     }
     //this.props.dispatch({
     //  type: 'requirement/fetchDept',
     //});
-
+    this.props.dispatch({
+      type: 'requirement/fetch',
+      payload: this.state.queryParams, 
+    });
     message.success('添加成功:' + JSON.stringify(fields));
     this.setState({
       modalVisible: false,
     });
   }
   onCreate = () => { //新增记录
-    this.props.dispatch({
-      type: 'requirement/setRecord',
-      payload: {}, // {
-    });
-    this.setState({recordNew: true});
+    //this.setState({recordNew: true});
+    //message.success(JSON.stringify(currentUser));
+    const { currentUser } = this.props;
+    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid}, });
+    
+    const name = currentUser.name;
+    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
+    this.props.dispatch({ type: 'requirement/setDemander', payload: name, }); // 缺省需求人是currentUser
+    
+    
+    const record = {reqname: '', program:'试飞一体化平台', type:'应用', status:'正常'};
+    this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
+    
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
-    this.props.dispatch({
-      type: 'requirement/setRecord',
-      payload: record, // {
-    });
-    this.setState({recordNew: false});
+    this.props.dispatch({ type: 'requirement/setDemander', payload: record.demander, }); 
+    this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
+    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
+    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
+    //this.setState({recordNew: false});
     this.handleModalVisible(true);
   }
   onRemove = (record) => { //删除记录
+    //message.success(JSON.stringify(record));
     this.props.dispatch({
       type: 'requirement/remove',
       payload: {id: record._id}, // {
     });
-  
+    this.props.dispatch({
+      type: 'requirement/fetch',
+      payload: this.state.queryParams, 
+    });
   }
   onExpand = (expandedKeys) => {
     //console.log('onExpand', arguments);
@@ -389,7 +469,7 @@ export default class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="用户名">
+            <FormItem label="需求">
               {getFieldDecorator('username')(
                 <Input placeholder="请输入" />
               )}
@@ -427,7 +507,7 @@ export default class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则编号">
+            <FormItem label="需求">
               {getFieldDecorator('no')(
                 <Input placeholder="请输入" />
               )}
