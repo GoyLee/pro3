@@ -19,7 +19,6 @@ const TreeNode = Tree.TreeNode;
 //CreateForm = Form.create()((props) => {
 @connect(({party}) => ({
   record: party.record,
-  //recordNew: party.recordNew,
   deptTree: party.dept.list,
 }))
 @Form.create({
@@ -136,7 +135,6 @@ class PartyForm extends PureComponent {
 export default class TableList extends PureComponent {
   state = {
     modalVisible: false, //是否显示编辑记录的对话框
-    recordNew: true, //是否“新增”记录
 
     expandForm: false,
     collapsed: false,
@@ -160,7 +158,7 @@ export default class TableList extends PureComponent {
     // alert(global.currentUser.name);
     const { dispatch } = this.props;
     dispatch({
-      type: 'party/fetchDept',
+      type: 'party/fetchDeptTree',
     });
 
     dispatch({
@@ -203,7 +201,7 @@ export default class TableList extends PureComponent {
       payload: params,
     });
     //dispatch({
-    //   type: 'party/fetchDept',
+    //   type: 'party/fetchDeptTree',
     //});
   }
 
@@ -298,24 +296,20 @@ export default class TableList extends PureComponent {
   }
 */
   handleAdd = (fields) => {
-    if(this.state.recordNew) { //Create a new record
-      this.props.dispatch({
-        type: 'party/add',
-        payload: fields, // {
-          // username: fields.username, //TODO: 试一试仅fields.username是否可以！
-          // password: fields.password,
-          // type:
-        // },
-      });
-    } else { //Update exist record
+    if(this.props.party.record._id) { //Update exist record
       const { party: { record }, loading } = this.props;
       this.props.dispatch({
         type: 'party/update',
         payload: {...record, ...fields}, 
-      });    
+      }); 
+    } else { //Create a new record
+      this.props.dispatch({
+        type: 'party/add',
+        payload: fields, 
+      });
     }
     this.props.dispatch({
-      type: 'party/fetchDept',
+      type: 'party/fetchDeptTree',
     });
     this.props.dispatch({
       type: 'party/fetch',
@@ -332,7 +326,6 @@ export default class TableList extends PureComponent {
       type: 'party/setRecord',
       payload: {}, // {
     });
-    this.setState({recordNew: true});
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
@@ -340,7 +333,6 @@ export default class TableList extends PureComponent {
       type: 'party/setRecord',
       payload: record, // {
     });
-    this.setState({recordNew: false});
     this.handleModalVisible(true);
   }
   onRemove = (record) => { //删除记录

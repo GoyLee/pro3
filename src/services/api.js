@@ -16,8 +16,8 @@ export async function queryUserList(params) {
 export async function queryUserDept(params) {
   return request(`/api/userdept?${stringify(params)}`);
 }
-export async function queryDept(params) {
-  return request(`/api/dept?${stringify(params)}`);
+export async function queryDeptTree(params) {
+  return request(`/api/depttree?${stringify(params)}`);
 }
 export async function queryParty(params) {
   //alert(stringify(params));

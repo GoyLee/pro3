@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import moment from 'moment';
-import { Table, Alert, Badge, Divider, Popconfirm, message } from 'antd';
+import { Table, Alert, Menu, Badge, Dropdown, Icon, Divider, Popconfirm, message } from 'antd';
 import styles from './index.less';
 
 const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
@@ -9,7 +9,7 @@ class RequirementTable extends PureComponent {
     selectedRowKeys: [],
     totalNumber: 0, //可用于显示表格中已选择行的某数量字段的汇总值
   };
-
+  
   componentWillReceiveProps(nextProps) {
     // clean state
     if (nextProps.selectedRows.length === 0) {
@@ -36,6 +36,10 @@ class RequirementTable extends PureComponent {
     this.props.onChange(pagination, filters, sorter);
   }
 
+  handleRow = (record, index) => {
+    message.success(index + ':' + JSON.stringify(record));
+  }
+
   cleanSelectedKeys = () => {
     this.handleRowSelectChange([], []);
   }
@@ -60,6 +64,7 @@ class RequirementTable extends PureComponent {
       {
         title: '需求',
         dataIndex: 'reqname',
+        width: 500,
       },
       {
         title: '项目群',
@@ -114,13 +119,27 @@ class RequirementTable extends PureComponent {
         //dataIndex: 'operation',
         //record中是list中的一条记录
         render: (text, record) => {
+          const menu = (
+            <Menu>
+              <Menu.Item>
+                <a onClick={() => this.props.onEdit(record)}>编辑</a>
+              </Menu.Item>
+              <Menu.Item>
+                <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record)}>
+                  <a href="#">删除</a>
+                </Popconfirm>
+              </Menu.Item>
+            </Menu>
+          );
           return (
             <Fragment>
-              <a onClick={() => this.props.onEdit(record)}>编辑</a>
+                <a onClick={() => this.props.onTrack(record)}>跟踪</a>
               <Divider type="vertical" />
-              <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record)}>
-                <a href="#">删除</a>
-              </Popconfirm>
+              <Dropdown overlay={menu}>
+                <a href="#">
+                  <Icon type="ellipsis" />
+                </a>
+              </Dropdown>
             </Fragment>
             //  <a onClick={() => this.props.onRemove(record)}>删除</a>
             //<a onClick={() => message.success(record._id)}>编辑</a>
@@ -166,6 +185,7 @@ class RequirementTable extends PureComponent {
       }),
     };
 
+
     return (
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>
@@ -184,16 +204,18 @@ class RequirementTable extends PureComponent {
         </div>
         <Table
           loading={loading}
-          rowKey={record => record.key}
+          rowKey={record => record._id}
           rowSelection={rowSelection}
           dataSource={list}
+          bordered
           columns={columns}
           pagination={paginationProps}
           onChange={this.handleTableChange}
+          size="small"
         />
       </div>
     );
   }
 }
-
+//onRow={this.handleRow}
 export default RequirementTable;

@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import RequirementTable from '../../components/RequirementTable';
+import ReqForm from '../Forms/ReqForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 //import { toTreeData } from '../../utils/utils';
 
@@ -17,191 +18,6 @@ const { Header, Content, Footer, Sider } = Layout;
 //const TreeNode2 = TreeSelect.TreeNode;
 //const TreeNode = Tree.TreeNode;
 
-//CreateForm = Form.create()((props) => {
-@connect(({requirement, party, user}) => ({
-  demander: requirement.demander,
-  record: requirement.record,
-  userList: party.userList,
-  currentUser: user.currentUser,
-  userDept: party.userDept,
-  //deptTree: requirement.dept.list,
-}))
-@Form.create({
-  onFieldsChange(props, changedFields) {
-    const { dispatch, record } = props;
-    //message.success(JSON.stringify(changedFields.reqname.value));
-    //每个form.getFieldDecorator的字段都需保存到store
-    var fieldsValue = {
-      ...record,
-    }
-    if(changedFields.reqname) { 
-      fieldsValue = {
-        ...fieldsValue,
-        reqname: changedFields.reqname.value,
-      }
-    }
-    if(changedFields.program) { 
-      fieldsValue = {
-        ...fieldsValue,
-        program: changedFields.program.value,
-      }
-    }
-    if(changedFields.type) { 
-      fieldsValue = {
-        ...fieldsValue,
-        type: changedFields.type.value,
-      }
-    }
-    if(changedFields.status) { 
-      fieldsValue = {
-        ...fieldsValue,
-        status: changedFields.status.value,
-      }
-    }
-    dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
-    //props.onChange(changedFields);
-  },
-  mapPropsToFields(props) { //绑定字段;
-    //if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
-      return {
-        //每个form.getFieldDecorator的字段都需map
-        //department: Form.createFormField({ ...props.record.department, value: props.record.department,}),
-        reqname: Form.createFormField({ ...props.record.reqname, value: props.record.reqname,}),
-        program: Form.createFormField({ ...props.record.program, value: props.record.program,}),
-        type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
-        //demander: Form.createFormField({ ...props.record.demander, value: props.record.demander,}),
-        status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
-      };
-    //}
-  },
-  onValuesChange(_, values) {
-    // console.log(values);
-  },
-})
-class PartyForm extends PureComponent {
-  //state = {
-    //demanderValue: '',
-  //};
-
-  okHandle = () => {
-    this.props.form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      const { userList, record } = this.props;
-      //const user = userList.find((element) => (element.username === this.props.demander));
-      fieldsValue = { 
-        ...record,  //装填未更改字段
-        ...fieldsValue,
-        demander: this.props.demander, //user._id,
-        department: this.props.userDept.username, //._id,
-      }
-     
-      //this.props.dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
-      //修改数据库
-      this.props.handleAdd(fieldsValue);
-    });
-  };
-  componentDidMount() {
-    // eslint-disable-next-line
-    // alert(global.currentUser.name);
-    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {}, });
-    //this.setState({demanderValue: this.props.currentUser.name});
-  }
-
-  handleBlur = (value) => {
-  
-    //const user = userList.find((element) => (element.username === value));
-    //this.setState({demanderValue: user});
-  } 
-  handleChange = (value) => {
-    //message.success(JSON.stringify(value));
-    //if(!value){
-     // this.setState({demanderValue: record.demander});
-    //} else {
-    //  this.setState({demanderValue: value});
-    //}
-    this.props.dispatch({ type: 'requirement/setDemander', payload: value,}); 
-    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value}, });
-  } 
-  handleSelect = (value) => {
-    //message.success(JSON.stringify(value));
-    const { userList } = this.props;
-    const user = userList.find((element) => (element.username === value));
-    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: user.pid}, });
-    //this.setState({demanderValue: value});
-    //this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value.key}, });
-  } 
-  
-  render(){
-    const { demander, userDept, userList, record, modalVisible, form, handleAdd, handleModalVisible } = this.props; //deptTree,
-    //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
-    return (
-      <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
-        <pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
-          <Select
-            mode="combobox"
-            value={demander}
-            defaultActiveFirstOption={true}
-            showArrow={false}
-            filterOption={false}
-            style={{ width: '100%' }}
-            onChange={this.handleChange}
-            onSelect={this.handleSelect}
-          >
-            {userList.map(d => <Option key={d.username}>{d.username}</Option>)}
-          </Select>
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="部门">
-          <span className="ant-form-text">{userDept.username}</span>
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="需求">
-          {form.getFieldDecorator('reqname', {
-            initialValue: '',
-            rules: [{ required: true, message: 'Please input user\'s name...' }],
-          })(
-            <TextArea rows={4} placeholder="请输入"/>
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目群">
-          {form.getFieldDecorator('program')(
-            <Select  style={{ width: '100%' }}>
-              <Option value="试飞一体化平台">试飞一体化平台</Option>
-              <Option value="试飞工作门户">试飞工作门户</Option>
-              <Option value="飞行运行控制系统">飞行运行控制系统</Option>
-              <Option value="试飞数据分析平台">试飞数据分析平台</Option>
-              <Option value="ERP实施">ERP实施</Option>
-              <Option value="试飞数据处理平台">试飞数据处理平台</Option>
-              <Option value="空地一体化分析平台">空地一体化分析平台</Option>
-              <Option value="终端设备">终端设备</Option>
-              <Option value="其他">其他</Option>
-            </Select>
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
-          {form.getFieldDecorator('type',{initialValue: '应用'})( //~defaultValue="部门"
-            <Select  style={{ width: '100%' }}>
-              <Option value="应用">应用</Option>
-              <Option value="设备">设备</Option>
-              <Option value="服务">服务</Option>
-              <Option value="网络">网络</Option>
-            </Select>
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="状态">
-          {form.getFieldDecorator('status',{initialValue: '正常'})( //~defaultValue="部门"
-            <Select  style={{ width: '100%' }}>
-              <Option value="正常">正常</Option>
-              <Option value="取消">取消</Option>
-              <Option value="挂起">挂起</Option>
-              <Option value="关闭">关闭</Option>
-            </Select>
-          )}
-        </FormItem>
-      </Modal>
-    ); 
-  }
-}
-
 @connect(({ requirement, loading, user }) => ({
   requirement,
   loading: loading.models.requirement,
@@ -211,23 +27,20 @@ class PartyForm extends PureComponent {
 export default class TableList extends PureComponent {
   state = {
     modalVisible: false, //是否显示编辑记录的对话框
-    //recordNew: true, //是否“新增”记录
+
     expandForm: false,
     collapsed: false,
-    //formValues: {}, //search conditions from search forms
+    //formValues: {}, 
     //for standardlist
     selectedRows: [],
-    queryParams: {}, 
+    queryParams: {}, //search conditions from search forms and requirementTable
   };
   
   componentDidMount() {
     // eslint-disable-next-line
     // alert(global.currentUser.name);
     const { dispatch } = this.props;
-    //dispatch({
-    //  type: 'requirement/fetchDept',
-    //});
-
+ 
     dispatch({
       type: 'requirement/fetch',
     });
@@ -267,9 +80,6 @@ export default class TableList extends PureComponent {
       type: 'requirement/fetch',
       payload: params,
     });
-    //dispatch({
-    //   type: 'requirement/fetchDept',
-    //});
   }
 
   handleFormReset = () => {
@@ -379,9 +189,6 @@ export default class TableList extends PureComponent {
         payload: fields, // {
       });
     }
-    //this.props.dispatch({
-    //  type: 'requirement/fetchDept',
-    //});
     this.props.dispatch({
       type: 'requirement/fetch',
       payload: this.state.queryParams, 
@@ -399,16 +206,16 @@ export default class TableList extends PureComponent {
     
     const name = currentUser.name;
     this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
-    this.props.dispatch({ type: 'requirement/setDemander', payload: name, }); // 缺省需求人是currentUser
+    this.props.dispatch({ type: 'party/setDemander', payload: name, }); // 缺省需求人是currentUser
     
-    
+    //初始化“需求”记录
     const record = {reqname: '', program:'试飞一体化平台', type:'应用', status:'正常'};
     this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
     
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
-    this.props.dispatch({ type: 'requirement/setDemander', payload: record.demander, }); 
+    this.props.dispatch({ type: 'party/setDemander', payload: record.demander, }); 
     this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
     //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
     this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
@@ -426,6 +233,7 @@ export default class TableList extends PureComponent {
       payload: this.state.queryParams, 
     });
   }
+  
   onExpand = (expandedKeys) => {
     //console.log('onExpand', arguments);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
@@ -470,7 +278,7 @@ export default class TableList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="需求">
-              {getFieldDecorator('username')(
+              {getFieldDecorator('reqname')(
                 <Input placeholder="请输入" />
               )}
             </FormItem>
@@ -508,13 +316,13 @@ export default class TableList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="需求">
-              {getFieldDecorator('no')(
+              {getFieldDecorator('reqname')(
                 <Input placeholder="请输入" />
               )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
+            <FormItem label="状态">
               {getFieldDecorator('status')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="0">关闭</Option>
@@ -534,7 +342,7 @@ export default class TableList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="更新日期">
-              {getFieldDecorator('date')(
+              {getFieldDecorator('updatedAt')(
                 <DatePicker style={{ width: '100%' }} placeholder="请输入更新日期" />
               )}
             </FormItem>
@@ -628,7 +436,7 @@ export default class TableList extends PureComponent {
                   />
               </div>
         </Card>
-        <PartyForm
+        <ReqForm
             {...parentMethods}
             modalVisible={modalVisible}
         />

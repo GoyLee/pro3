@@ -1,4 +1,4 @@
-import { queryUserList, queryUserDept, queryDept, queryParty, removeParty, addParty, updateParty } from '../services/api';
+import { queryUserList, queryUserDept, queryDeptTree, queryParty, removeParty, addParty, updateParty } from '../services/api';
 
 export default {
   namespace: 'party',
@@ -6,6 +6,7 @@ export default {
   state: {
     record: {}, //在list传给form的记录缓存
     userList: [],
+    demander: '',
     userDept: {},
     //recordNew: true,
     dept: {
@@ -19,7 +20,7 @@ export default {
   },
 
   effects: {
-    *fetchUserList({ payload }, { call, put }) { //获取员工-部门树tree，not a plain list.
+    *fetchUserList({ payload }, { call, put }) { //获取模糊查找员工
       const response = yield call(queryUserList, payload);
       yield put({
         type: 'saveUserList',
@@ -28,7 +29,7 @@ export default {
       // eslint-disable-next-line
       //console.log(JSON.stringify(dept));
     },
-    *fetchUserDept({ payload }, { call, put }) { //获取员工-部门树tree，not a plain list.
+    *fetchUserDept({ payload }, { call, put }) { //获取员工的部门
       const response = yield call(queryUserDept, payload);
       yield put({
         type: 'saveUserDept',
@@ -38,8 +39,8 @@ export default {
       //console.log(JSON.stringify(dept));
     },
     
-    *fetchDept({ payload }, { call, put }) { //获取部门树tree，not a plain list.
-      const response = yield call(queryDept, payload);
+    *fetchDeptTree({ payload }, { call, put }) { //获取部门树tree，not a plain list.
+      const response = yield call(queryDeptTree, payload);
       yield put({
         type: 'saveDept',
         payload: response,
@@ -102,6 +103,12 @@ export default {
       return {
         ...state,
         data: action.payload,
+      };
+    },
+    setDemander(state, action) {
+      return {
+        ...state,
+        demander: action.payload,
       };
     },
     saveDept(state, action) {
