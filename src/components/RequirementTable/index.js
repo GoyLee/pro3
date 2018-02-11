@@ -37,7 +37,8 @@ class RequirementTable extends PureComponent {
   }
 
   handleRow = (record, index) => {
-    message.success(index + ':' + JSON.stringify(record));
+    //message.success(index + ':' + JSON.stringify(record));
+    //record = {...record, no: index};
   }
 
   cleanSelectedKeys = () => {
@@ -52,6 +53,13 @@ class RequirementTable extends PureComponent {
     const status = ['正常', '关闭', '挂起', '取消'];
 
     const columns = [
+      { //显示行号
+        title: 'No',
+        dataIndex: 'no',
+        align: 'center',
+        width: 40,
+        render: (text, record, index) => <span> {index+1} </span>,
+      },
       {
         title: '部门',
         dataIndex: 'department',
@@ -74,7 +82,6 @@ class RequirementTable extends PureComponent {
         title: '类别',
         dataIndex: 'type',
         sorter: true,
-        //align: 'right',
         //render: val => `${val} 万`,
       },
       //{
@@ -212,10 +219,10 @@ class RequirementTable extends PureComponent {
           pagination={paginationProps}
           onChange={this.handleTableChange}
           size="small"
+          onRow={this.handleRow}
         />
       </div>
     );
   }
 }
-//onRow={this.handleRow}
 export default RequirementTable;

@@ -5,10 +5,10 @@ export default {
 
   state: {
     record: {}, //在list传给form的记录缓存
-    userList: [],
-    demander: '',
-    userDept: {},
-    //recordNew: true,
+    user: '', //当前表单的填写人
+    userDept: {}, //当前表单填写人所属的部门
+    userList: [], //根据user模糊查询出的list, 作为select‘s options
+
     dept: {
       list: [],
       currentDept: '',
@@ -26,8 +26,6 @@ export default {
         type: 'saveUserList',
         payload: response,
       });
-      // eslint-disable-next-line
-      //console.log(JSON.stringify(dept));
     },
     *fetchUserDept({ payload }, { call, put }) { //获取员工的部门
       const response = yield call(queryUserDept, payload);
@@ -35,8 +33,6 @@ export default {
         type: 'saveUserDept',
         payload: response,
       });
-      // eslint-disable-next-line
-      //console.log(JSON.stringify(dept));
     },
     
     *fetchDeptTree({ payload }, { call, put }) { //获取部门树tree，not a plain list.
@@ -45,8 +41,6 @@ export default {
         type: 'saveDept',
         payload: response,
       });
-      // eslint-disable-next-line
-      //console.log(JSON.stringify(dept));
     },
     
     *fetch({ payload }, { call, put }) {
@@ -55,33 +49,19 @@ export default {
         type: 'save',
         payload: response,
       });
-      // eslint-disable-next-line
-      //console.log(JSON.stringify(data));
     },
     //add POST后的response会更新state！
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addParty, payload);
-      //yield put({
-      //  type: 'save',
-      //  payload: response,
-      //});
       if (callback) callback();
     },
     //add POST后的response会更新state！
     *update({ payload, callback }, { call, put }) {
       const response = yield call(updateParty, payload);
-      //yield put({
-      //  type: 'save',
-      //  payload: response,
-      //});
       if (callback) callback();
     },
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(removeParty, payload);
-     // yield put({
-     //   type: 'save',
-      //  payload: response,
-      //});
       if (callback) callback();
     },
   },
@@ -105,10 +85,10 @@ export default {
         data: action.payload,
       };
     },
-    setDemander(state, action) {
+    setUser(state, action) {
       return {
         ...state,
-        demander: action.payload,
+        user: action.payload,
       };
     },
     saveDept(state, action) {

@@ -18,7 +18,7 @@ const { Header, Content, Footer, Sider } = Layout;
 
 //CreateForm = Form.create()((props) => {
 @connect(({requirement, party, user}) => ({
-  demander: party.demander,
+  demander: party.user,
   record: requirement.record,
   userList: party.userList,
   currentUser: user.currentUser,
@@ -85,9 +85,9 @@ export default class ReqForm extends PureComponent {
   okHandle = () => {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
-      const { userList, record } = this.props;
+      const { record, handleModalVisible } = this.props;
       //const user = userList.find((element) => (element.username === this.props.demander));
-      fieldsValue = { 
+      const fields = { 
         ...record,  //装填未更改字段
         ...fieldsValue, //装填可能更改的字段
         demander: this.props.demander, //user._id,//缺省应由的字段
@@ -96,7 +96,25 @@ export default class ReqForm extends PureComponent {
      
       //this.props.dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
       //修改数据库
-      this.props.handleAdd(fieldsValue);
+      //this.props.handleAdd(fieldsValue);
+      if(record._id) { //Update exist record
+        //const { requirement: { record } } = this.props;
+        this.props.dispatch({
+          type: 'requirement/update',
+          payload: fields, 
+        });    
+        // username: fields.username, //TODO: 试一试仅fields.username是否可以！
+        // password: fields.password,
+        // type:
+        // },
+      } else { //Create a new record
+        this.props.dispatch({
+          type: 'requirement/add',
+          payload: fields, // {
+        });
+      }
+      handleModalVisible(false, true);
+      message.success('添加成功:' + JSON.stringify(fields));
     });
   };
   componentDidMount() {
@@ -118,7 +136,7 @@ export default class ReqForm extends PureComponent {
     //} else {
     //  this.setState({demanderValue: value});
     //}
-    this.props.dispatch({ type: 'party/setDemander', payload: value,}); 
+    this.props.dispatch({ type: 'party/setUser', payload: value,}); 
     this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value}, });
   } 
   handleSelect = (value) => {
@@ -130,12 +148,12 @@ export default class ReqForm extends PureComponent {
     //this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value.key}, });
   } 
   
+        //<pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
   render(){
-    const { demander, userDept, userList, record, modalVisible, form, handleAdd, handleModalVisible } = this.props; //deptTree,
+    const { demander, userDept, userList, record, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
-      <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
-        <pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
+      <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false)}>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
           <Select
             mode="combobox"

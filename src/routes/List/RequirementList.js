@@ -4,7 +4,6 @@ import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Bu
 import RequirementTable from '../../components/RequirementTable';
 import ReqForm from '../Forms/ReqForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-//import { toTreeData } from '../../utils/utils';
 
 import styles from './TableList.less';
 
@@ -30,7 +29,6 @@ export default class TableList extends PureComponent {
 
     expandForm: false,
     collapsed: false,
-    //formValues: {}, 
     //for standardlist
     selectedRows: [],
     queryParams: {}, //search conditions from search forms and requirementTable
@@ -81,7 +79,7 @@ export default class TableList extends PureComponent {
       payload: params,
     });
   }
-
+//for search form
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
@@ -157,80 +155,6 @@ export default class TableList extends PureComponent {
         type: 'requirement/fetch',
         payload: params, //不能用queryParams, 因其是异步更新，现在还是旧值！
       });
-    });
-  }
-
-  handleModalVisible = (flag) => {
-    this.setState({
-      modalVisible: !!flag,
-    });
-  }
-/*
-  handleFormChange = (changedFields) => {
-    this.setState({
-      fields: { ...this.state.fields, ...changedFields },
-    });
-  }
-*/
-  handleAdd = (fields) => {
-    if(this.props.requirement.record._id) { //Update exist record
-      //const { requirement: { record } } = this.props;
-      this.props.dispatch({
-        type: 'requirement/update',
-        payload: fields, 
-      });    
-      // username: fields.username, //TODO: 试一试仅fields.username是否可以！
-      // password: fields.password,
-      // type:
-      // },
-    } else { //Create a new record
-      this.props.dispatch({
-        type: 'requirement/add',
-        payload: fields, // {
-      });
-    }
-    this.props.dispatch({
-      type: 'requirement/fetch',
-      payload: this.state.queryParams, 
-    });
-    message.success('添加成功:' + JSON.stringify(fields));
-    this.setState({
-      modalVisible: false,
-    });
-  }
-  onCreate = () => { //新增记录
-    //this.setState({recordNew: true});
-    //message.success(JSON.stringify(currentUser));
-    const { currentUser } = this.props;
-    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid}, });
-    
-    const name = currentUser.name;
-    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
-    this.props.dispatch({ type: 'party/setDemander', payload: name, }); // 缺省需求人是currentUser
-    
-    //初始化“需求”记录
-    const record = {reqname: '', program:'试飞一体化平台', type:'应用', status:'正常'};
-    this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
-    
-    this.handleModalVisible(true);
-  }
-  onEdit = (record) => { //修改记录
-    this.props.dispatch({ type: 'party/setDemander', payload: record.demander, }); 
-    this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
-    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
-    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
-    //this.setState({recordNew: false});
-    this.handleModalVisible(true);
-  }
-  onRemove = (record) => { //删除记录
-    //message.success(JSON.stringify(record));
-    this.props.dispatch({
-      type: 'requirement/remove',
-      payload: {id: record._id}, // {
-    });
-    this.props.dispatch({
-      type: 'requirement/fetch',
-      payload: this.state.queryParams, 
     });
   }
   
@@ -385,6 +309,53 @@ export default class TableList extends PureComponent {
     return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
   
+  //for record updating
+  handleModalVisible = (flag, isRecordUpdated) => {
+    this.setState({
+      modalVisible: flag,
+    });
+    if(isRecordUpdated) {
+      this.props.dispatch({
+        type: 'requirement/fetch',
+        payload: this.state.queryParams, 
+      });
+    }
+  }
+  onCreate = () => { //新增记录
+    //this.setState({recordNew: true});
+    //message.success(JSON.stringify(currentUser));
+    const { currentUser } = this.props;
+    const name = currentUser.name;
+    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
+    this.props.dispatch({ type: 'party/setUser', payload: name, }); // 缺省需求人是currentUser
+    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid}, });
+    
+    //初始化“需求”记录
+    const record = {reqname: '', program:'试飞一体化平台', type:'应用', status:'正常'}; //设定默认值
+    this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
+    
+    this.handleModalVisible(true);
+  }
+  onEdit = (record) => { //修改记录
+    this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
+    this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
+    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
+    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
+    //this.setState({recordNew: false});
+    this.handleModalVisible(true);
+  }
+  onRemove = (record) => { //删除记录
+    //message.success(JSON.stringify(record));
+    this.props.dispatch({
+      type: 'requirement/remove',
+      payload: {id: record._id}, // {
+    });
+    this.props.dispatch({
+      type: 'requirement/fetch',
+      payload: this.state.queryParams, 
+    });
+  }
+
   render() {
     const { requirement: { data }, loading } = this.props;
     const { selectedRows, modalVisible } = this.state;
@@ -395,11 +366,6 @@ export default class TableList extends PureComponent {
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
-
-    const parentMethods = {
-      handleAdd: this.handleAdd,
-      handleModalVisible: this.handleModalVisible,
-    };
 
     return (
       <PageHeaderLayout title="信息化需求管理">
@@ -432,12 +398,13 @@ export default class TableList extends PureComponent {
                   onSelectRow={this.handleSelectRows}
                   onChange={this.handleStandardTableChange}
                   onEdit={this.onEdit}
+                  onTrack={this.onEdit}
                   onRemove={this.onRemove}
                   />
               </div>
         </Card>
         <ReqForm
-            {...parentMethods}
+            handleModalVisible={this.handleModalVisible}
             modalVisible={modalVisible}
         />
       </PageHeaderLayout>
