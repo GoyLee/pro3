@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import RequirementTable from '../../components/RequirementTable';
 import ReqForm from '../Forms/ReqForm';
+import EventForm from '../Forms/EventForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 import styles from './TableList.less';
@@ -26,6 +27,7 @@ const { Header, Content, Footer, Sider } = Layout;
 export default class TableList extends PureComponent {
   state = {
     modalVisible: false, //是否显示编辑记录的对话框
+    eventModalVisible: false, //是否显示事件列表的对话框
 
     expandForm: false,
     collapsed: false,
@@ -79,23 +81,10 @@ export default class TableList extends PureComponent {
       payload: params,
     });
   }
-//for search form
-  handleFormReset = () => {
-    const { form, dispatch } = this.props;
-    form.resetFields();
+  
+  handleSelectRows = (rows) => {
     this.setState({
-      //formValues: {},
-      queryParams: {},
-    });
-    dispatch({
-      type: 'requirement/fetch',
-      payload: {},
-    });
-  }
-
-  toggleForm = () => {
-    this.setState({
-      expandForm: !this.state.expandForm,
+      selectedRows: rows,
     });
   }
 
@@ -123,10 +112,17 @@ export default class TableList extends PureComponent {
         break;
     }
   }
-
-  handleSelectRows = (rows) => {
+//for search form ---------------------------------------------------------------------------
+  handleFormReset = () => {
+    const { form, dispatch } = this.props;
+    form.resetFields();
     this.setState({
-      selectedRows: rows,
+      //formValues: {},
+      queryParams: {},
+    });
+    dispatch({
+      type: 'requirement/fetch',
+      payload: {},
     });
   }
 
@@ -158,43 +154,6 @@ export default class TableList extends PureComponent {
     });
   }
   
-  onExpand = (expandedKeys) => {
-    //console.log('onExpand', arguments);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
-    });
-  }
-  //onCheck = (checkedKeys) => {
-    //console.log('onCheck', checkedKeys);
-    //message.success(checkedKeys);
-  //  this.setState({ checkedKeys });
-  //}
-  onSelect = (selectedKeys, info) => {
-    //console.log('onSelect', info);
-    // eslint-disable-next-line
-    //alert(selectedKeys);
-    //message.success('info:' +JSON.stringify(info.event));
-    //if(info.selected) { //TreeNode‘s selected 是开关键，连续的2个点击中，第1次是选中，第2次是未选
-      //message.success('Keys:' +selectedKeys[0]);
-      var params = {
-        ...this.state.queryParams,
-        selectedDept: selectedKeys[0],// || this.state.selectedDept,
-      };
-      message.success(JSON.stringify(params));
-      this.setState({ queryParams: params}) //dva/redux this.setstate()是异步的，本次调用状态是不变的！下次状态才会变!
-      //message.success(selectedKeys.length);
-      //message.success(params.selectedDept);
-      this.props.dispatch({
-        type: 'requirement/fetch',
-        payload: params,
-      });
-      this.setState({ selectedKeys });
-    //}
-  }
-
   renderSimpleForm() {
     const { getFieldDecorator } = this.props.form;
     return (
@@ -309,7 +268,12 @@ export default class TableList extends PureComponent {
     return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
   
-  //for record updating
+  toggleForm = () => {
+    this.setState({
+      expandForm: !this.state.expandForm,
+    });
+  }
+  //for record updating ----------------------------------------------------------------------------------
   handleModalVisible = (flag, isRecordUpdated) => {
     this.setState({
       modalVisible: flag,
@@ -355,10 +319,32 @@ export default class TableList extends PureComponent {
       payload: this.state.queryParams, 
     });
   }
+  //for requirements tracking ----------------------------------------------------------------------------------
+  handleEventModalVisible = (flag, isRecordUpdated) => {
+    this.setState({
+      eventModalVisible: flag,
+    });
+    if(isRecordUpdated) {
+      this.props.dispatch({
+        type: 'requirement/fetch',
+        payload: this.state.queryParams, 
+      });
+    }
+  }
 
+  onTrack = (record) => { //修改记录
+    this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
+    this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
+    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
+    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
+    //this.setState({recordNew: false});
+    this.handleEventModalVisible(true);
+  }
+
+// Render the List--------------------------------------------------------------------------
   render() {
     const { requirement: { data }, loading } = this.props;
-    const { selectedRows, modalVisible } = this.state;
+    const { selectedRows, modalVisible, eventModalVisible } = this.state;
 
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
@@ -398,7 +384,7 @@ export default class TableList extends PureComponent {
                   onSelectRow={this.handleSelectRows}
                   onChange={this.handleStandardTableChange}
                   onEdit={this.onEdit}
-                  onTrack={this.onEdit}
+                  onTrack={this.onTrack}
                   onRemove={this.onRemove}
                   />
               </div>
@@ -406,6 +392,10 @@ export default class TableList extends PureComponent {
         <ReqForm
             handleModalVisible={this.handleModalVisible}
             modalVisible={modalVisible}
+        />
+        <EventForm
+            handleModalVisible={this.handleEventModalVisible}
+            modalVisible={eventModalVisible}
         />
       </PageHeaderLayout>
     );

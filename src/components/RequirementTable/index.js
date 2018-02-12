@@ -3,7 +3,6 @@ import moment from 'moment';
 import { Table, Alert, Menu, Badge, Dropdown, Icon, Divider, Popconfirm, message } from 'antd';
 import styles from './index.less';
 
-const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
 class RequirementTable extends PureComponent {
   state = {
     selectedRowKeys: [],
@@ -49,7 +48,7 @@ class RequirementTable extends PureComponent {
     const { selectedRowKeys, totalNumber } = this.state;
     const { data: { list, pagination }, loading } = this.props;
     //message.success(JSON.stringify(pagination));
-
+    const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
     const status = ['正常', '关闭', '挂起', '取消'];
 
     const columns = [

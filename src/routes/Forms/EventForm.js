@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-
-import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
-
-//import { toTreeData } from '../../utils/utils';
-
+import moment from 'moment';
+import { Row, Col, Card, Form, Input, Select, Button, InputNumber, Modal, message } from 'antd';
+import { Table, Alert, Menu, Badge, Dropdown, Icon, Divider, Popconfirm } from 'antd';
 //import styles from './TableList.less';
 
 const FormItem = Form.Item;
@@ -12,17 +10,13 @@ const { Option } = Select;
 const { TextArea } = Input;
 const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 
-const { Header, Content, Footer, Sider } = Layout;
-//const SubMenu = Menu.SubMenu;
-//const TreeNode2 = TreeSelect.TreeNode;
-//const TreeNode = Tree.TreeNode;
-
 //CreateForm = Form.create()((props) => {
 @connect(({requirement, party, user}) => ({
+  data: requirement.data,
   demander: party.user,
   record: requirement.record,
   userList: party.userList,
-  currentUser: user.currentUser,
+  currentUser: user.currentUser.name,
   userDept: party.userDept,
   //deptTree: requirement.dept.list,
 }))
@@ -78,7 +72,7 @@ const { Header, Content, Footer, Sider } = Layout;
     // console.log(values);
   },
 })
-export default class ReqForm extends PureComponent {
+export default class EventForm extends PureComponent {
   //state = {
     //demanderValue: '',
   //};
@@ -153,8 +147,75 @@ export default class ReqForm extends PureComponent {
   render(){
     const { demander, userDept, userList, record, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
+    const { data: { list, pagination }, loading } = this.props;
+    //message.success(JSON.stringify(pagination));
+    const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
+    const status = ['正常', '关闭', '挂起', '取消'];
+
+    const columns = [
+      { //显示行号
+        title: 'No',
+        dataIndex: 'no',
+        align: 'center',
+        width: 40,
+        render: (text, record, index) => <span> {index+1} </span>,
+      },
+      {
+        title: '记录人',
+        dataIndex: 'demander',//'recorder',
+        //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '跟踪事件',
+        dataIndex: 'reqname',
+        width: 300,
+      },
+            {
+        title: '状态',
+        dataIndex: 'status',
+        
+        filters: [
+          {
+            text: status[0],
+            value: status[0],
+          },
+          {
+            text: status[1],
+            value: status[1],
+          },
+          {
+            text: status[2],
+            value: status[2],
+          },
+          {
+            text: status[3],
+            value: status[3],
+          },
+        ],
+        //render: val => <span>{val}</span>,
+        render(val) {
+          return <Badge status={statusMap[val]} text={val} />;
+        },
+      },
+      {
+        title: '日期',
+        dataIndex: 'createdAt',
+        sorter: true,
+        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+    ];
+    
     return (
-      <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false)}>
+      <Modal title={record.reqname} width="50%" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false) } >
+        <Table
+          loading={loading}
+          rowKey={record => record._id}
+          dataSource={list}
+          columns={columns}
+          bordered
+          size="small"
+        />
+     
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
           <Select
             mode="combobox"
