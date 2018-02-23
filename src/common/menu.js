@@ -35,7 +35,7 @@ const menuData = [{
   icon: 'table',
   path: 'list',
   children: [{
-    name: '用户查询',
+    name: '用户管理',
     path: 'table-list',
   }, {
     name: '需求跟踪',

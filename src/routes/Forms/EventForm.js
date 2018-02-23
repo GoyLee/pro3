@@ -20,30 +20,13 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
   loading: loading.models.event,
   //userDept: party.userDept,
 }))
-@Form.create({
-  onFieldsChange(props, changedFields) {
-    const { dispatch} = props;
-    //message.success(JSON.stringify(changedFields.reqname.value));
-    //每个form.getFieldDecorator的字段都需保存到store
-    //props.onChange(changedFields);
-  },
-  mapPropsToFields(props) { //绑定字段;
-    //if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
-      return {
-      };
-    //}
-  },
-  onValuesChange(_, values) {
-    // console.log(values);
-  },
-})
+@Form.create()
 export default class EventForm extends PureComponent {
   //state = {
     //demanderValue: '',
   //};
-  componentDidMount() {
-
-  }
+  // componentDidMount() {
+  // }
 
   okHandle = () => {
     this.props.form.validateFields((err, fieldsValue) => {
@@ -52,7 +35,8 @@ export default class EventForm extends PureComponent {
       const fields = { 
         ...fieldsValue, //装填可能更改的字段
         user: this.props.currentUser, //user._id,//缺省应有的字段：填写人
-        pid:  this.props.pRecord._id // //缺省应有的字段：关于什么的事件
+        pid:  this.props.pRecord._id, //缺省应有的字段：关于什么的事件
+        createdAt: Date.now(), //缺省应有的字段：创建时间。必须有，避免上一条记录的遗留痕迹
         //department: this.props.userDept.username, //._id,//缺省应有的字段
       }
       //修改数据库
@@ -70,8 +54,8 @@ export default class EventForm extends PureComponent {
   render(){
     const { list, loading, pRecord, user, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //message.success(JSON.stringify(pagination));
-    const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
     const status = ['正常', '关闭', '挂起', '取消'];
+    const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
 
     const columns = [
       { //显示行号
@@ -122,32 +106,32 @@ export default class EventForm extends PureComponent {
       {
         title: '日期',
         dataIndex: 'createdAt',
-        width: 90,
-        sorter: true,
-        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        width: 60,
+        render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
       },
     ];
     
     return (
-      <Modal title={pRecord.reqname} width="50%" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false) } >
+      <Modal title={'跟踪：' + pRecord.reqname} width="45%" visible={modalVisible} onOk={this.okHandle} okText="新增" onCancel={() => handleModalVisible(false, false) } >
         <Table
           loading={loading}
           rowKey={record => record._id}
           dataSource={list}
           columns={columns}
           bordered
+          pagination={{ pageSize: 50 }}
+          scroll={{ y: 300 }}
           size="small"
         />
-     
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="需求">
+        <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="跟踪情况">
           {form.getFieldDecorator('name', {
             initialValue: '',
-            rules: [{ required: true, message: 'Please input user\'s name...' }],
+            rules: [{ required: true, message: 'Please input tracking event...' }],
           })(
-            <TextArea rows={4} placeholder="请输入"/>
+            <TextArea rows={2} placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="状态">
+        <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="需求状态">
           {form.getFieldDecorator('status',{initialValue: '正常'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>
               <Option value="正常">正常</Option>

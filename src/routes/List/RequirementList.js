@@ -337,12 +337,12 @@ export default class TableList extends PureComponent {
     //this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
     //this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
     //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
-    //this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
+    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
     //this.setState({recordNew: false});
     this.handleEventModalVisible(true);
   }
 
-// Render the List--------------------------------------------------------------------------
+// Render the List-------------------------------------------------------------------------------------
   render() {
     const { requirement: { data }, loading } = this.props;
     const { selectedRows, modalVisible, eventModalVisible } = this.state;

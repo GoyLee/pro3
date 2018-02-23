@@ -27,40 +27,42 @@ const { Header, Content, Footer, Sider } = Layout;
   //deptTree: requirement.dept.list,
 }))
 @Form.create({
-  onFieldsChange(props, changedFields) {
-    const { dispatch, record } = props;
-    //message.success(JSON.stringify(changedFields.reqname.value));
-    //每个form.getFieldDecorator的字段都需保存到store
-    var fieldsValue = {
-      ...record,
-    }
-    if(changedFields.reqname) { 
-      fieldsValue = {
-        ...fieldsValue,
-        reqname: changedFields.reqname.value,
-      }
-    }
-    if(changedFields.program) { 
-      fieldsValue = {
-        ...fieldsValue,
-        program: changedFields.program.value,
-      }
-    }
-    if(changedFields.type) { 
-      fieldsValue = {
-        ...fieldsValue,
-        type: changedFields.type.value,
-      }
-    }
-    if(changedFields.status) { 
-      fieldsValue = {
-        ...fieldsValue,
-        status: changedFields.status.value,
-      }
-    }
-    dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
-    //props.onChange(changedFields);
-  },
+  // 下列代码没必要，因每个form.getFieldDecorator的字段在form.validateFields((err, fieldsValue))中，
+  // 都由包含在fieldsValue对象中了，在okHandle时，使用即可。
+  // onFieldsChange(props, changedFields) {
+  //   const { dispatch, record } = props;
+  //   //message.success(JSON.stringify(changedFields.reqname.value));
+  //   //每个form.getFieldDecorator的字段都需保存到store
+  //   var fieldsValue = {
+  //     ...record,
+  //   }
+  //   if(changedFields.reqname) { 
+  //     fieldsValue = {
+  //       ...fieldsValue,
+  //       reqname: changedFields.reqname.value,
+  //     }
+  //   }
+  //   if(changedFields.program) { 
+  //     fieldsValue = {
+  //       ...fieldsValue,
+  //       program: changedFields.program.value,
+  //     }
+  //   }
+  //   if(changedFields.type) { 
+  //     fieldsValue = {
+  //       ...fieldsValue,
+  //       type: changedFields.type.value,
+  //     }
+  //   }
+  //   if(changedFields.status) { 
+  //     fieldsValue = {
+  //       ...fieldsValue,
+  //       status: changedFields.status.value,
+  //     }
+  //   }
+  //   dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
+  //   //props.onChange(changedFields);
+  // },
   mapPropsToFields(props) { //绑定字段;
     //if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
       return {
@@ -93,6 +95,7 @@ export default class ReqForm extends PureComponent {
         ...fieldsValue, //装填可能更改的字段
         demander: this.props.demander, //user._id,//缺省应有的字段：用户名
         department: this.props.userDept.username, //._id,//缺省应有的字段：用户的部门名
+        updatedAt: Date.now(), //缺省应有的字段：更新时间。必须有，避免上一条记录的遗留痕迹
       }
      
       //this.props.dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });

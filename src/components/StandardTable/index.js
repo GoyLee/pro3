@@ -52,7 +52,7 @@ class StandardTable extends PureComponent {
         dataIndex: 'code',
       },
       {
-        title: '用户名',
+        title: '名称',
         dataIndex: 'username',
       },
       {
@@ -185,6 +185,7 @@ class StandardTable extends PureComponent {
           columns={columns}
           pagination={paginationProps}
           onChange={this.handleTableChange}
+          size="small"
         />
       </div>
     );

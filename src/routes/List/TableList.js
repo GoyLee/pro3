@@ -25,7 +25,7 @@ const TreeNode = Tree.TreeNode;
   onFieldsChange(props, changedFields) {
     //props.onChange(changedFields);
   },
-  mapPropsToFields(props) { //绑定字段;
+  mapPropsToFields(props) { //绑定字段; update时使用，用于传递原有record的字段
     if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
       return {
         code: Form.createFormField({ ...props.record.code, value: props.record.code,}),
@@ -53,6 +53,10 @@ class PartyForm extends PureComponent {
   okHandle = () => {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
+      fieldsValue = { 
+        ...fieldsValue, //装填原有字段
+        updatedAt: Date.now(), //缺省应有的字段：更新时间。必须有，避免上一条记录的遗留痕迹
+      }
       this.props.dispatch({
         type: 'party/setRecord',
         payload: fieldsValue, // {
@@ -61,22 +65,22 @@ class PartyForm extends PureComponent {
     });
   };
   
+  // <pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
   render(){
     const { record, deptTree, modalVisible, form, handleAdd, handleModalVisible } = this.props;
     return (
       <Modal title="新建用户" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
-        <pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="工号">
           {form.getFieldDecorator('code', {
-            initialValue: '120001',
+            initialValue: '',
             rules: [{ required: false, message: 'Please input user\'s code...' }],
           })(
             <Input placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="用户名">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="名称">
           {form.getFieldDecorator('username', {
-            initialValue: 'user',
+            initialValue: '',
             rules: [{ required: true, message: 'Please input user\'s name...' }],
           })(
             <Input placeholder="请输入"/>
@@ -171,118 +175,8 @@ export default class TableList extends PureComponent {
     //});
   }
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-    //message.success(JSON.stringify(filtersArg));
-    //把对象中的每个属性的值由数组变成了由‘,’分隔的字符串
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-    //params和后台egg‘s ctx.query二者匹配即可，中间过程可不管！
-    const params = {
-      ...this.state.queryParams,
-      ...filters,
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      //...formValues,
-    };
-    if (sorter.field) { //判断对象sorter是否为空{}
-    //message.success(JSON.stringify(sorter.order));
-      params.sorter = ((sorter.order === 'ascend') ? '':'-') + sorter.field;
-      //this.setState({sorter: params.sorter});
-    }
-    this.setState({ queryParams: params})
-    //message.success(JSON.stringify(params));
-    dispatch({
-      type: 'party/fetch',
-      payload: params,
-    });
-    //dispatch({
-    //   type: 'party/fetchDeptTree',
-    //});
-  }
 
-  handleFormReset = () => {
-    const { form, dispatch } = this.props;
-    form.resetFields();
-    this.setState({
-      //formValues: {},
-      queryParams: {},
-    });
-    dispatch({
-      type: 'party/fetch',
-      payload: {},
-    });
-  }
-
-  toggleForm = () => {
-    this.setState({
-      expandForm: !this.state.expandForm,
-    });
-  }
-
-  handleMenuClick = (e) => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-
-    if (!selectedRows) return;
-
-    switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'party/remove',
-          payload: {
-            id: selectedRows.map(row => row._id).join(','),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
-        break;
-      default:
-        break;
-    }
-  }
-
-  handleSelectRows = (rows) => {
-    this.setState({
-      selectedRows: rows,
-    });
-  }
-
-  handleSearch = (e) => {
-    e.preventDefault();
-
-    const { dispatch, form } = this.props;
-
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-
-      //const values = {
-      //  ...fieldsValue,
-      //  updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      //};
-
-      //this.setState({
-      //  formValues: values,
-      //});
-      const params = {
-        ...this.state.queryParams,
-        ...fieldsValue
-      }
-      this.setState({ queryParams: params});
-      dispatch({
-        type: 'party/fetch',
-        payload: params, //不能用queryParams, 因其是异步更新，现在还是旧值！
-      });
-    });
-  }
-
+//for record updating, coupled with ReqForm.js--------------------------------------------------------
   handleModalVisible = (flag) => {
     this.setState({
       modalVisible: !!flag,
@@ -345,43 +239,53 @@ export default class TableList extends PureComponent {
       payload: this.state.queryParams, 
     });
   }
-  onExpand = (expandedKeys) => {
-    //console.log('onExpand', arguments);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
+
+  //for search form ---------------------------------------------------------------------------
+  handleSearch = (e) => {
+    e.preventDefault();
+
+    const { dispatch, form } = this.props;
+
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+
+      //const values = {
+      //  ...fieldsValue,
+      //  updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+      //};
+
+      //this.setState({
+      //  formValues: values,
+      //});
+      const params = {
+        ...this.state.queryParams,
+        ...fieldsValue
+      }
+      this.setState({ queryParams: params});
+      dispatch({
+        type: 'party/fetch',
+        payload: params, //不能用queryParams, 因其是异步更新，现在还是旧值！
+      });
     });
   }
-  //onCheck = (checkedKeys) => {
-    //console.log('onCheck', checkedKeys);
-    //message.success(checkedKeys);
-  //  this.setState({ checkedKeys });
-  //}
-  onSelect = (selectedKeys, info) => {
-    //console.log('onSelect', info);
-    // eslint-disable-next-line
-    //alert(selectedKeys);
-    //message.success('info:' +JSON.stringify(info.event));
-    //if(info.selected) { //TreeNode‘s selected 是开关键，连续的2个点击中，第1次是选中，第2次是未选
-      //message.success('Keys:' +selectedKeys[0]);
-      var params = {
-        ...this.state.queryParams,
-        selectedDept: selectedKeys[0],// || this.state.selectedDept,
-      };
-      message.success(JSON.stringify(params));
-      this.setState({ queryParams: params}) //dva/redux this.setstate()是异步的，本次调用状态是不变的！下次状态才会变!
-      //message.success(selectedKeys.length);
-      //message.success(params.selectedDept);
-      this.props.dispatch({
-        type: 'party/fetch',
-        payload: params,
-      });
-      this.setState({ selectedKeys });
-    //}
+  handleFormReset = () => {
+    const { form, dispatch } = this.props;
+    form.resetFields();
+    this.setState({
+      //formValues: {},
+      queryParams: {},
+    });
+    dispatch({
+      type: 'party/fetch',
+      payload: {},
+    });
   }
 
+  toggleFormtoggleForm = () => {
+    this.setState({
+      expandForm: !this.state.expandForm,
+    });
+  }
   renderSimpleForm() {
     const { getFieldDecorator } = this.props.form;
     return (
@@ -495,16 +399,44 @@ export default class TableList extends PureComponent {
   renderForm() {
     return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
-/*
-  renderTreeNodes = (data) => {
-    return data.map((item) => {
-      return (
-        <TreeNode title={item.label} key={item.value} dataRef={item}>
-          { if (item.children) { this.renderTreeNodes(item.children)}}
-        </TreeNode>
-      )
+  // Render and handle the Department Tree---------------------------------------------------------------------------
+  onExpand = (expandedKeys) => {
+    //console.log('onExpand', arguments);
+    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
+    // or, you can remove all expanded children keys.
+    this.setState({
+      expandedKeys,
+      autoExpandParent: false,
     });
-  }*/
+  }
+  //onCheck = (checkedKeys) => {
+    //console.log('onCheck', checkedKeys);
+    //message.success(checkedKeys);
+  //  this.setState({ checkedKeys });
+  //}
+  onSelect = (selectedKeys, info) => {
+    //console.log('onSelect', info);
+    // eslint-disable-next-line
+    //alert(selectedKeys);
+    //message.success('info:' +JSON.stringify(info.event));
+    //if(info.selected) { //TreeNode‘s selected 是开关键，连续的2个点击中，第1次是选中，第2次是未选
+      //message.success('Keys:' +selectedKeys[0]);
+      var params = {
+        ...this.state.queryParams,
+        selectedDept: selectedKeys[0],// || this.state.selectedDept,
+      };
+      message.success(JSON.stringify(params));
+      this.setState({ queryParams: params}) //dva/redux this.setstate()是异步的，本次调用状态是不变的！下次状态才会变!
+      //message.success(selectedKeys.length);
+      //message.success(params.selectedDept);
+      this.props.dispatch({
+        type: 'party/fetch',
+        payload: params,
+      });
+      this.setState({ selectedKeys });
+    //}
+  }
+
   renderTreeNodes = (data) => {
     return data.map((item) => {
       if (item.children) {
@@ -541,8 +473,74 @@ export default class TableList extends PureComponent {
       </Tree>
     );
   }
-  
-  render() {
+
+// Render and handle the List-------------------------------------------------------------------------------------
+handleStandardTableChange = (pagination, filtersArg, sorter) => {
+  const { dispatch } = this.props;
+  const { formValues } = this.state;
+  //message.success(JSON.stringify(filtersArg));
+  //把对象中的每个属性的值由数组变成了由‘,’分隔的字符串
+  const filters = Object.keys(filtersArg).reduce((obj, key) => {
+    const newObj = { ...obj };
+    newObj[key] = getValue(filtersArg[key]);
+    return newObj;
+  }, {});
+  //params和后台egg‘s ctx.query二者匹配即可，中间过程可不管！
+  const params = {
+    ...this.state.queryParams,
+    ...filters,
+    currentPage: pagination.current,
+    pageSize: pagination.pageSize,
+    //...formValues,
+  };
+  if (sorter.field) { //判断对象sorter是否为空{}
+  //message.success(JSON.stringify(sorter.order));
+    params.sorter = ((sorter.order === 'ascend') ? '':'-') + sorter.field;
+    //this.setState({sorter: params.sorter});
+  }
+  this.setState({ queryParams: params})
+  //message.success(JSON.stringify(params));
+  dispatch({
+    type: 'party/fetch',
+    payload: params,
+  });
+  //dispatch({
+  //   type: 'party/fetchDeptTree',
+  //});
+}
+
+handleMenuClick = (e) => {
+  const { dispatch } = this.props;
+  const { selectedRows } = this.state;
+
+  if (!selectedRows) return;
+
+  switch (e.key) {
+    case 'remove':
+      dispatch({
+        type: 'party/remove',
+        payload: {
+          id: selectedRows.map(row => row._id).join(','),
+        },
+        callback: () => {
+          this.setState({
+            selectedRows: [],
+          });
+        },
+      });
+      break;
+    default:
+      break;
+  }
+}
+
+handleSelectRows = (rows) => {
+  this.setState({
+    selectedRows: rows,
+  });
+}
+
+render() {
     const { party: { data }, loading } = this.props;
     const { selectedRows, modalVisible } = this.state;
 
