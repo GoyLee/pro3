@@ -273,7 +273,7 @@ export default class TableList extends PureComponent {
       expandForm: !this.state.expandForm,
     });
   }
-  //for record updating ----------------------------------------------------------------------------------
+  //for record updating, coupled with ReqForm.js---------------------------------------------------------
   handleModalVisible = (flag, isRecordUpdated) => {
     this.setState({
       modalVisible: flag,
@@ -319,7 +319,7 @@ export default class TableList extends PureComponent {
       payload: this.state.queryParams, 
     });
   }
-  //for requirements tracking ----------------------------------------------------------------------------------
+  //for requirements tracking, coupled with EventForm.js-------------------------------------------------
   handleEventModalVisible = (flag, isRecordUpdated) => {
     this.setState({
       eventModalVisible: flag,
@@ -331,12 +331,13 @@ export default class TableList extends PureComponent {
       });
     }
   }
-
-  onTrack = (record) => { //修改记录
-    this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
-    this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
+  
+  onTrack = (record) => { //跟踪事件
+    this.props.dispatch({ type: 'event/fetch', payload: {pid: record._id}, });
+    //this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
+    //this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
     //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
-    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
+    //this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
     //this.setState({recordNew: false});
     this.handleEventModalVisible(true);
   }

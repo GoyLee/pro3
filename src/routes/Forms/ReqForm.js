@@ -91,8 +91,8 @@ export default class ReqForm extends PureComponent {
       const fields = { 
         ...record,  //装填未更改字段
         ...fieldsValue, //装填可能更改的字段
-        demander: this.props.demander, //user._id,//缺省应有的字段
-        department: this.props.userDept.username, //._id,//缺省应有的字段
+        demander: this.props.demander, //user._id,//缺省应有的字段：用户名
+        department: this.props.userDept.username, //._id,//缺省应有的字段：用户的部门名
       }
      
       //this.props.dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
@@ -118,18 +118,14 @@ export default class ReqForm extends PureComponent {
       message.success('添加成功:' + JSON.stringify(fields));
     });
   };
-  componentDidMount() {
-    // eslint-disable-next-line
-    // alert(global.currentUser.name);
-    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {}, });
-    //this.setState({demanderValue: this.props.currentUser.name});
-  }
-
-  handleBlur = (value) => {
-  
-    //const user = userList.find((element) => (element.username === value));
-    //this.setState({demanderValue: user});
-  } 
+  // componentDidMount() {
+  //   eslint-disable-next-line
+  //   alert(global.currentUser.name);
+  //   this.props.dispatch({ type: 'party/fetchUserDept', payload: {}, });
+  //   this.setState({demanderValue: this.props.currentUser.name});
+  // }
+  //for 'demander' select event handling-------------------------------------------------------------------
+  //随输入关键字的变化，即时模糊查询匹配的用户列表供选择，并设置store中的user，来更新select，保证输入和显示的一致性
   handleChange = (value) => {
     //message.success(JSON.stringify(value));
     //if(!value){
@@ -139,7 +135,8 @@ export default class ReqForm extends PureComponent {
     //}
     this.props.dispatch({ type: 'party/setUser', payload: value,}); 
     this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value}, });
-  } 
+  }
+  //随用户选择变化，即时获取用户所属部门名称
   handleSelect = (value) => {
     //message.success(JSON.stringify(value));
     const { userList } = this.props;

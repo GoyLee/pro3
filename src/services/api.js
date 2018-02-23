@@ -8,7 +8,20 @@ export async function queryProjectNotice() {
 export async function queryActivities() {
   return request('/api/activities');
 }
-
+//Event=============================================================================
+export async function queryEvent(params) {
+  //alert(stringify(params));
+  return request(`/api/event?${stringify(params)}`);
+}
+export async function addEvent(params) {
+  return request('/api/event', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
 //Party=============================================================================
 export async function queryUserList(params) {
   return request(`/api/userlist?${stringify(params)}`);
