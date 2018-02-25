@@ -1,4 +1,4 @@
-import { queryUserList, queryUserDept, queryDeptTree, queryParty, removeParty, addParty, updateParty } from '../services/api';
+import { queryUserList, queryUserDept, queryDeptTree, queryTagTree, queryParty, removeParty, addParty, updateParty } from '../services/api';
 
 export default {
   namespace: 'party',
@@ -10,11 +10,15 @@ export default {
     userList: [], //根据user模糊查询出的list, 作为select‘s options
 
     dept: {
-      list: [],
+      list: [], // a tree list
       currentDept: '',
     },
+    tag: {
+      list: [], // a tree list
+      currentTag: '',
+    },
     data: {
-      list: [],
+      list: [], // a pure list
       pagination: {},
     },
   },
@@ -39,6 +43,13 @@ export default {
       const response = yield call(queryDeptTree, payload);
       yield put({
         type: 'saveDept',
+        payload: response,
+      });
+    },
+    *fetchTagTree({ payload }, { call, put }) { //获取部门树tree，not a plain list.
+      const response = yield call(queryTagTree, payload);
+      yield put({
+        type: 'saveTag',
         payload: response,
       });
     },
@@ -95,6 +106,12 @@ export default {
       return {
         ...state,
         dept: action.payload,
+      };
+    },
+    saveTag(state, action) {
+      return {
+        ...state,
+        tag: action.payload,
       };
     },
     setRecord(state, action) {

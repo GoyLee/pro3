@@ -32,6 +32,9 @@ export async function queryUserDept(params) {
 export async function queryDeptTree(params) {
   return request(`/api/depttree?${stringify(params)}`);
 }
+export async function queryTagTree(params) {
+  return request(`/api/tagtree?${stringify(params)}`);
+}
 export async function queryParty(params) {
   //alert(stringify(params));
   return request(`/api/party?${stringify(params)}`);

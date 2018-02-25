@@ -103,8 +103,8 @@ export const getRouterData = (app) => {
     '/form/advanced-form': {
       component: dynamicWrapper(app, ['form'], () => import('../routes/Forms/AdvancedForm')),
     },
-    '/list/table-list': {
-      component: dynamicWrapper(app, ['party'], () => import('../routes/List/TableList')),
+    '/list/party-list': {
+      component: dynamicWrapper(app, ['party'], () => import('../routes/List/PartyList')),
     },
     '/list/requirement-list': {
       component: dynamicWrapper(app, ['requirement', 'event'], () => import('../routes/List/RequirementList')),

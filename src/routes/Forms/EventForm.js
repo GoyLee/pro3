@@ -119,10 +119,11 @@ export default class EventForm extends PureComponent {
           dataSource={list}
           columns={columns}
           bordered
-          pagination={{ pageSize: 50 }}
+          pagination={false}
           scroll={{ y: 300 }}
           size="small"
         />
+        <br/>
         <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="跟踪情况">
           {form.getFieldDecorator('name', {
             initialValue: '',

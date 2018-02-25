@@ -36,7 +36,7 @@ const menuData = [{
   path: 'list',
   children: [{
     name: '用户管理',
-    path: 'table-list',
+    path: 'party-list',
   }, {
     name: '需求跟踪',
     path: 'requirement-list',

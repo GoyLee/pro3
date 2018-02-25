@@ -96,6 +96,7 @@ export default class ReqForm extends PureComponent {
         demander: this.props.demander, //user._id,//缺省应有的字段：用户名
         department: this.props.userDept.username, //._id,//缺省应有的字段：用户的部门名
         updatedAt: Date.now(), //缺省应有的字段：更新时间。必须有，避免上一条记录的遗留痕迹
+        __v: (record.__v ? record.__v+1 : 1), //缺省应有的字段：更新次数。
       }
      
       //this.props.dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
@@ -107,10 +108,6 @@ export default class ReqForm extends PureComponent {
           type: 'requirement/update',
           payload: fields, 
         });    
-        // username: fields.username, //TODO: 试一试仅fields.username是否可以！
-        // password: fields.password,
-        // type:
-        // },
       } else { //Create a new record
         this.props.dispatch({
           type: 'requirement/add',

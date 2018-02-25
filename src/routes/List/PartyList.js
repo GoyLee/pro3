@@ -1,142 +1,29 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
+import {Tabs, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import StandardTable from '../../components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import PartyForm from '../Forms/PartyForm';
 //import { toTreeData } from '../../utils/utils';
-
 import styles from './TableList.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
-
 const { Header, Content, Footer, Sider } = Layout;
+const { TabPane } = Tabs;
 //const SubMenu = Menu.SubMenu;
 //const TreeNode2 = TreeSelect.TreeNode;
 const TreeNode = Tree.TreeNode;
 
-//CreateForm = Form.create()((props) => {
-@connect(({party}) => ({
-  record: party.record,
-  deptTree: party.dept.list,
-}))
-@Form.create({
-  onFieldsChange(props, changedFields) {
-    //props.onChange(changedFields);
-  },
-  mapPropsToFields(props) { //绑定字段; update时使用，用于传递原有record的字段
-    if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
-      return {
-        code: Form.createFormField({ ...props.record.code, value: props.record.code,}),
-        username: Form.createFormField({ ...props.record.username, value: props.record.username,}),
-        pid: Form.createFormField({ ...props.record.pid, value: props.record.pid,}),
-        password: Form.createFormField({ ...props.record.password, value: props.record.password,}),
-        type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
-        mobile: Form.createFormField({ ...props.record.mobile, value: props.record.mobile,}),
-        status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
-      };
-    }
-  },
-  onValuesChange(_, values) {
-    // console.log(values);
-  },
-})
-class PartyForm extends PureComponent {
-  state = {
-    treeSelectValue: undefined,
-  };
-
-  onChange = (value) => {
-    this.setState({treeSelectValue: value});
-  }
-  okHandle = () => {
-    this.props.form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      fieldsValue = { 
-        ...fieldsValue, //装填原有字段
-        updatedAt: Date.now(), //缺省应有的字段：更新时间。必须有，避免上一条记录的遗留痕迹
-      }
-      this.props.dispatch({
-        type: 'party/setRecord',
-        payload: fieldsValue, // {
-      });
-      this.props.handleAdd(fieldsValue);
-    });
-  };
-  
-  // <pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
-  render(){
-    const { record, deptTree, modalVisible, form, handleAdd, handleModalVisible } = this.props;
-    return (
-      <Modal title="新建用户" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible()}>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="工号">
-          {form.getFieldDecorator('code', {
-            initialValue: '',
-            rules: [{ required: false, message: 'Please input user\'s code...' }],
-          })(
-            <Input placeholder="请输入"/>
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="名称">
-          {form.getFieldDecorator('username', {
-            initialValue: '',
-            rules: [{ required: true, message: 'Please input user\'s name...' }],
-          })(
-            <Input placeholder="请输入"/>
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="密码">
-          {form.getFieldDecorator('password', {
-            rules: [{ required: false, message: 'Please input the password...' }],
-          })(
-            <Input placeholder="请输入"  type='password' />
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="手机号">
-          {form.getFieldDecorator('mobile', {
-            rules: [{ required: false, message: 'Please input user\'s mobile...' }],
-          })(
-            <Input placeholder="请输入" />
-          )}
-        </FormItem>      
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="从属于">
-          {form.getFieldDecorator('pid', {
-            rules: [{ required: false, message: 'Please input the super...' }],
-          })(
-            <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.treeSelectValue} treeDefaultExpandAll treeData={deptTree} showSearch searchPlaceholder='搜索部门' onChange={this.onChange} style={{ width: '100%' }} />
-          )}
-        </FormItem>      
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
-          {form.getFieldDecorator('type',{initialValue: '员工'})( //~defaultValue="部门"
-            <Select  style={{ width: '100%' }}>
-              <Option value="员工">员工</Option>
-              <Option value="部门">部门</Option>
-              <Option value="项目">项目</Option>
-            </Select>
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="状态">
-          {form.getFieldDecorator('status',{initialValue: '正常'})( //~defaultValue="部门"
-            <Select  style={{ width: '100%' }}>
-              <Option value="正常">正常</Option>
-              <Option value="离职">离职</Option>
-              <Option value="兼职">兼职</Option>
-              <Option value="停职">停职</Option>
-            </Select>
-          )}
-        </FormItem>
-      </Modal>
-    ); //options={options} onChange={onChange} 
-  }
-}
-
 @connect(({ party, loading, }) => ({
   party,
+  deptTree: party.dept.list,
+  tagTree: party.tag.list,
   loading: loading.models.party,
 }))
 @Form.create()
-export default class TableList extends PureComponent {
+export default class PartyList extends PureComponent {
   state = {
     modalVisible: false, //是否显示编辑记录的对话框
 
@@ -156,65 +43,39 @@ export default class TableList extends PureComponent {
     selectedKeys: [],
     //treeSelectValue: '',
   };
-  
   componentDidMount() {
     // eslint-disable-next-line
     // alert(global.currentUser.name);
     const { dispatch } = this.props;
     dispatch({
-      type: 'party/fetchDeptTree',
-    });
-
-    dispatch({
       type: 'party/fetch',
     });
-
-    //dispatch({ // Myy
-    //  type: 'user/changeUserName',
-    //  payload: 'Hello World',
-    //});
-  }
-
-
-//for record updating, coupled with ReqForm.js--------------------------------------------------------
-  handleModalVisible = (flag) => {
-    this.setState({
-      modalVisible: !!flag,
+    dispatch({
+      type: 'party/fetchDeptTree',
+    });
+    dispatch({
+      type: 'party/fetchTagTree',
     });
   }
-/*
-  handleFormChange = (changedFields) => {
+// for record updating, coupled with PartyForm.js--------------------------------------------------------
+  handleModalVisible = (flag, isRecordUpdated) => {
     this.setState({
-      fields: { ...this.state.fields, ...changedFields },
+      modalVisible: flag,
     });
-  }
-*/
-  handleAdd = (fields) => {
-    if(this.props.party.record._id) { //Update exist record
-      const { party: { record }, loading } = this.props;
+    if(isRecordUpdated) {
       this.props.dispatch({
-        type: 'party/update',
-        payload: {...record, ...fields}, 
-      }); 
-    } else { //Create a new record
+        type: 'party/fetch',
+        payload: this.state.queryParams, 
+      });
       this.props.dispatch({
-        type: 'party/add',
-        payload: fields, 
+        type: 'party/fetchDeptTree',
+      });
+      this.props.dispatch({
+        type: 'party/fetchTagTree',
       });
     }
-    this.props.dispatch({
-      type: 'party/fetchDeptTree',
-    });
-    this.props.dispatch({
-      type: 'party/fetch',
-      payload: this.state.queryParams, 
-    });
-
-    message.success('添加成功:' + JSON.stringify(fields));
-    this.setState({
-      modalVisible: false,
-    });
   }
+
   onCreate = () => { //新增记录
     this.props.dispatch({
       type: 'party/setRecord',
@@ -238,9 +99,15 @@ export default class TableList extends PureComponent {
       type: 'party/fetch',
       payload: this.state.queryParams, 
     });
+    this.props.dispatch({
+      type: 'party/fetchDeptTree',
+    });
+    this.props.dispatch({
+      type: 'party/fetchTagTree',
+    });
   }
 
-  //for search form ---------------------------------------------------------------------------
+// for search form ---------------------------------------------------------------------------
   handleSearch = (e) => {
     e.preventDefault();
 
@@ -399,7 +266,7 @@ export default class TableList extends PureComponent {
   renderForm() {
     return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
-  // Render and handle the Department Tree---------------------------------------------------------------------------
+// Render and handle the Department Tree---------------------------------------------------------------------------
   onExpand = (expandedKeys) => {
     //console.log('onExpand', arguments);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
@@ -450,8 +317,8 @@ export default class TableList extends PureComponent {
     });
   }
   //{...item} dataRef={item}
-  renderDept() {
-    const { party: { dept: {list} }, loading } = this.props;
+  renderDept(list) {
+    const { loading } = this.props;
     //var treeData = list.map( (item) => {return {title:item.username, key: item._id,};} );
     //var treeData = toTreeData(list);
     //alert(JSON.stringify(list));
@@ -461,13 +328,13 @@ export default class TableList extends PureComponent {
     //message.success("renderDept......");
     return (
       <Tree
-        defaultExpandAll
         onExpand={this.onExpand}
         expandedKeys={this.state.expandedKeys}
         autoExpandParent={this.state.autoExpandParent}
         loading={loading}
         onSelect={this.onSelect}
         selectedKeys={this.state.selectedKeys}
+        defaultExpandAll={true}
       >
         {this.renderTreeNodes(list)}
       </Tree>
@@ -475,73 +342,73 @@ export default class TableList extends PureComponent {
   }
 
 // Render and handle the List-------------------------------------------------------------------------------------
-handleStandardTableChange = (pagination, filtersArg, sorter) => {
-  const { dispatch } = this.props;
-  const { formValues } = this.state;
-  //message.success(JSON.stringify(filtersArg));
-  //把对象中的每个属性的值由数组变成了由‘,’分隔的字符串
-  const filters = Object.keys(filtersArg).reduce((obj, key) => {
-    const newObj = { ...obj };
-    newObj[key] = getValue(filtersArg[key]);
-    return newObj;
-  }, {});
-  //params和后台egg‘s ctx.query二者匹配即可，中间过程可不管！
-  const params = {
-    ...this.state.queryParams,
-    ...filters,
-    currentPage: pagination.current,
-    pageSize: pagination.pageSize,
-    //...formValues,
-  };
-  if (sorter.field) { //判断对象sorter是否为空{}
-  //message.success(JSON.stringify(sorter.order));
-    params.sorter = ((sorter.order === 'ascend') ? '':'-') + sorter.field;
-    //this.setState({sorter: params.sorter});
+  handleStandardTableChange = (pagination, filtersArg, sorter) => {
+    const { dispatch } = this.props;
+    const { formValues } = this.state;
+    //message.success(JSON.stringify(filtersArg));
+    //把对象中的每个属性的值由数组变成了由‘,’分隔的字符串
+    const filters = Object.keys(filtersArg).reduce((obj, key) => {
+      const newObj = { ...obj };
+      newObj[key] = getValue(filtersArg[key]);
+      return newObj;
+    }, {});
+    //params和后台egg‘s ctx.query二者匹配即可，中间过程可不管！
+    const params = {
+      ...this.state.queryParams,
+      ...filters,
+      currentPage: pagination.current,
+      pageSize: pagination.pageSize,
+      //...formValues,
+    };
+    if (sorter.field) { //判断对象sorter是否为空{}
+    //message.success(JSON.stringify(sorter.order));
+      params.sorter = ((sorter.order === 'ascend') ? '':'-') + sorter.field;
+      //this.setState({sorter: params.sorter});
+    }
+    this.setState({ queryParams: params})
+    //message.success(JSON.stringify(params));
+    dispatch({
+      type: 'party/fetch',
+      payload: params,
+    });
+    //dispatch({
+    //   type: 'party/fetchDeptTree',
+    //});
   }
-  this.setState({ queryParams: params})
-  //message.success(JSON.stringify(params));
-  dispatch({
-    type: 'party/fetch',
-    payload: params,
-  });
-  //dispatch({
-  //   type: 'party/fetchDeptTree',
-  //});
-}
 
-handleMenuClick = (e) => {
-  const { dispatch } = this.props;
-  const { selectedRows } = this.state;
+  handleMenuClick = (e) => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
 
-  if (!selectedRows) return;
+    if (!selectedRows) return;
 
-  switch (e.key) {
-    case 'remove':
-      dispatch({
-        type: 'party/remove',
-        payload: {
-          id: selectedRows.map(row => row._id).join(','),
-        },
-        callback: () => {
-          this.setState({
-            selectedRows: [],
-          });
-        },
-      });
-      break;
-    default:
-      break;
+    switch (e.key) {
+      case 'remove':
+        dispatch({
+          type: 'party/remove',
+          payload: {
+            id: selectedRows.map(row => row._id).join(','),
+          },
+          callback: () => {
+            this.setState({
+              selectedRows: [],
+            });
+          },
+        });
+        break;
+      default:
+        break;
+    }
   }
-}
 
-handleSelectRows = (rows) => {
-  this.setState({
-    selectedRows: rows,
-  });
-}
-
-render() {
+  handleSelectRows = (rows) => {
+    this.setState({
+      selectedRows: rows,
+    });
+  }
+  render() {
     const { party: { data }, loading } = this.props;
+    const { deptTree, tagTree } = this.props;
     const { selectedRows, modalVisible } = this.state;
 
     const menu = (
@@ -551,16 +418,18 @@ render() {
       </Menu>
     );
 
-    const parentMethods = {
-      handleAdd: this.handleAdd,
-      handleModalVisible: this.handleModalVisible,
-    };
-
     return (
       <PageHeaderLayout title="组织机构和人员">
         <Layout>
           <Sider width={250} style={{ background: '#fff', margin: 2}}>
-            {this.renderDept()}
+            <Tabs defaultActiveKey="1" size='small'>
+              <TabPane tab="部门" key="1">
+                {this.renderDept(deptTree)}
+              </TabPane>
+              <TabPane tab="标签" key="2">
+                {this.renderDept(tagTree)}
+              </TabPane>
+            </Tabs>          
           </Sider>
           <Content style={{ background: '#fff', margin: 2}}>
             <Card bordered={false}>
@@ -598,7 +467,7 @@ render() {
             </Card>
           </Content>
           <PartyForm
-            {...parentMethods}
+            handleModalVisible={this.handleModalVisible}
             modalVisible={modalVisible}
           />
         </Layout>
