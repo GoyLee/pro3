@@ -281,7 +281,7 @@ export default class PartyList extends PureComponent {
     //message.success(checkedKeys);
   //  this.setState({ checkedKeys });
   //}
-  onSelect = (selectedKeys, info) => {
+  onDeptSelect = (selectedKeys, info) => {
     //console.log('onSelect', info);
     // eslint-disable-next-line
     //alert(selectedKeys);
@@ -291,8 +291,9 @@ export default class PartyList extends PureComponent {
       var params = {
         ...this.state.queryParams,
         selectedDept: selectedKeys[0],// || this.state.selectedDept,
+        selectedTag: null, //需和Dept互斥
       };
-      message.success(JSON.stringify(params));
+      // message.success(JSON.stringify(params));
       this.setState({ queryParams: params}) //dva/redux this.setstate()是异步的，本次调用状态是不变的！下次状态才会变!
       //message.success(selectedKeys.length);
       //message.success(params.selectedDept);
@@ -303,7 +304,29 @@ export default class PartyList extends PureComponent {
       this.setState({ selectedKeys });
     //}
   }
-
+  onTagSelect = (selectedKeys, info) => {
+    //console.log('onSelect', info);
+    // eslint-disable-next-line
+    //alert(selectedKeys);
+    //message.success('info:' +JSON.stringify(info.event));
+    //if(info.selected) { //TreeNode‘s selected 是开关键，连续的2个点击中，第1次是选中，第2次是未选
+      //message.success('Keys:' +selectedKeys[0]);
+      var params = {
+        ...this.state.queryParams,
+        selectedDept: null,
+        selectedTag: selectedKeys[0],// //需和Dept互斥
+      };
+      // message.success(JSON.stringify(params));
+      this.setState({ queryParams: params}) //dva/redux this.setstate()是异步的，本次调用状态是不变的！下次状态才会变!
+      //message.success(selectedKeys.length);
+      //message.success(params.selectedDept);
+      this.props.dispatch({
+        type: 'party/fetch',
+        payload: params,
+      });
+      this.setState({ selectedKeys });
+    //}
+  }
   renderTreeNodes = (data) => {
     return data.map((item) => {
       if (item.children) {
@@ -317,7 +340,7 @@ export default class PartyList extends PureComponent {
     });
   }
   //{...item} dataRef={item}
-  renderDept(list) {
+  renderTree(list, type) {
     const { loading } = this.props;
     //var treeData = list.map( (item) => {return {title:item.username, key: item._id,};} );
     //var treeData = toTreeData(list);
@@ -332,7 +355,7 @@ export default class PartyList extends PureComponent {
         expandedKeys={this.state.expandedKeys}
         autoExpandParent={this.state.autoExpandParent}
         loading={loading}
-        onSelect={this.onSelect}
+        onSelect={type ? this.onDeptSelect : this.onTagSelect}
         selectedKeys={this.state.selectedKeys}
         defaultExpandAll={true}
       >
@@ -424,10 +447,10 @@ export default class PartyList extends PureComponent {
           <Sider width={250} style={{ background: '#fff', margin: 2}}>
             <Tabs defaultActiveKey="1" size='small'>
               <TabPane tab="部门" key="1">
-                {this.renderDept(deptTree)}
+                {this.renderTree(deptTree, true)}
               </TabPane>
               <TabPane tab="标签" key="2">
-                {this.renderDept(tagTree)}
+                {this.renderTree(tagTree, false)}
               </TabPane>
             </Tabs>          
           </Sider>

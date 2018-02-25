@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { TreeSelect, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
+import { Cascader, TreeSelect, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -115,13 +115,16 @@ export default class PartyForm extends PureComponent {
           {form.getFieldDecorator('pid', {
             rules: [{ required: false, message: 'Please input the super...' }],
           })(
-            <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.deptTreeSelectValue} treeDefaultExpandAll treeData={deptTree} showSearch searchPlaceholder='搜索部门' onChange={this.onDeptChange} style={{ width: '100%' }} />
+            <Cascader options={deptTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
+            // <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.deptTreeSelectValue} treeDefaultExpandAll treeData={deptTree} showSearch searchPlaceholder='搜索部门' onChange={this.onDeptChange} style={{ width: '100%' }} />
           )}
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签（项目）">
           {form.getFieldDecorator('tags', {
             rules: [{ required: false, message: 'Please input the tags...' }],
           })(
+            // <Cascader options={tagTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
+            // Tags需可多选，antd cascader还不支持多选！
             <TreeSelect allowClear  multiple treeNodeFilterProp='label' value={this.state.tagTreeSelectValue} treeDefaultExpandAll treeData={tagTree} showSearch searchPlaceholder='搜索标签' onChange={this.onTagChange} style={{ width: '100%' }} />
           )}
         </FormItem>  
