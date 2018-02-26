@@ -5,7 +5,7 @@ export default {
 
   state: {
     record: {}, //在list传给form的记录缓存
-    user: '', //当前表单的填写人
+    user: '', //当前表单的填写人姓名
     userDept: {}, //当前表单填写人所属的部门
     userList: [], //根据user模糊查询出的list, 作为select‘s options
 

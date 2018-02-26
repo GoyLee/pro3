@@ -35,7 +35,7 @@ const menuData = [{
   icon: 'table',
   path: 'list',
   children: [{
-    name: '用户管理',
+    name: '维度管理',
     path: 'party-list',
   }, {
     name: '需求跟踪',

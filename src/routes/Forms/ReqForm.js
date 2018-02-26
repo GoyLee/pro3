@@ -24,6 +24,7 @@ const { Header, Content, Footer, Sider } = Layout;
   userList: party.userList,
   currentUser: user.currentUser,
   userDept: party.userDept,
+  tagTree: party.tag.list,
   //deptTree: requirement.dept.list,
 }))
 @Form.create({
@@ -70,6 +71,7 @@ const { Header, Content, Footer, Sider } = Layout;
         //department: Form.createFormField({ ...props.record.department, value: props.record.department,}),
         reqname: Form.createFormField({ ...props.record.reqname, value: props.record.reqname,}),
         program: Form.createFormField({ ...props.record.program, value: props.record.program,}),
+        tags: Form.createFormField({ ...props.record.tags, value: props.record.tags,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
         //demander: Form.createFormField({ ...props.record.demander, value: props.record.demander,}),
         status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
@@ -81,20 +83,26 @@ const { Header, Content, Footer, Sider } = Layout;
   },
 })
 export default class ReqForm extends PureComponent {
-  //state = {
-    //demanderValue: '',
-  //};
+  state = {
+    // demanderValue: '',
+    tagTreeSelectValue: [],
+  };
+  onTagChange = (value) => {
+    this.setState({tagTreeSelectValue: value});
+  }
 
   okHandle = () => {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
-      const { record, handleModalVisible } = this.props;
-      //const user = userList.find((element) => (element.username === this.props.demander));
+      const { record, userList, handleModalVisible } = this.props;
+      const user = userList.find((element) => (element.username === this.props.demander));
       const fields = { 
         ...record,  //装填未更改字段
         ...fieldsValue, //装填可能更改的字段
         demander: this.props.demander, //user._id,//缺省应有的字段：用户名
         department: this.props.userDept.username, //._id,//缺省应有的字段：用户的部门名
+        demanderId: user._id,
+        deptIds: user.pid,
         updatedAt: Date.now(), //缺省应有的字段：更新时间。必须有，避免上一条记录的遗留痕迹
         __v: (record.__v ? record.__v+1 : 1), //缺省应有的字段：更新次数。
       }
@@ -141,14 +149,14 @@ export default class ReqForm extends PureComponent {
     //message.success(JSON.stringify(value));
     const { userList } = this.props;
     const user = userList.find((element) => (element.username === value));
-    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: user.pid}, });
+    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: user.pid[1]}, }); //pid[0]:试飞中心,pid[1]:各部门
     //this.setState({demanderValue: value});
     //this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value.key}, });
   } 
   
-        //<pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
+  //<pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
   render(){
-    const { demander, userDept, userList, record, modalVisible, form, handleModalVisible } = this.props; //deptTree,
+    const { tagTree, demander, userDept, userList, record, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
       <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false)}>
@@ -177,7 +185,7 @@ export default class ReqForm extends PureComponent {
             <TextArea rows={4} placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目群">
+        {/* <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目群">
           {form.getFieldDecorator('program')(
             <Select  style={{ width: '100%' }}>
               <Option value="试飞一体化平台">试飞一体化平台</Option>
@@ -191,7 +199,16 @@ export default class ReqForm extends PureComponent {
               <Option value="其他">其他</Option>
             </Select>
           )}
-        </FormItem>
+        </FormItem> */}
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签">
+          {form.getFieldDecorator('tags', {
+            rules: [{ required: false, message: 'Please input the tags...' }],
+          })(
+            // <Cascader options={tagTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
+            // Tags需可多选，但antd cascader还不支持多选！还需用TreeSelect。
+            <TreeSelect allowClear  multiple treeNodeFilterProp='label' value={this.state.tagTreeSelectValue} treeDefaultExpandAll treeData={tagTree} showSearch searchPlaceholder='搜索标签' onChange={this.onTagChange} style={{ width: '100%' }} />
+          )}
+        </FormItem> 
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
           {form.getFieldDecorator('type',{initialValue: '应用'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>

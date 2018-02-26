@@ -37,18 +37,9 @@ export default class TableList extends PureComponent {
   };
   
   componentDidMount() {
-    // eslint-disable-next-line
-    // alert(global.currentUser.name);
     const { dispatch } = this.props;
- 
-    dispatch({
-      type: 'requirement/fetch',
-    });
-
-    //dispatch({ // Myy
-    //  type: 'user/changeUserName',
-    //  payload: 'Hello World',
-    //});
+    dispatch({ type: 'requirement/fetch',});
+    dispatch({ type: 'party/fetchTagTree', });
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -292,7 +283,7 @@ export default class TableList extends PureComponent {
     const name = currentUser.name;
     this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
     this.props.dispatch({ type: 'party/setUser', payload: name, }); // 缺省需求人是currentUser
-    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid}, });
+    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid[1]}, });
     
     //初始化“需求”记录
     const record = {reqname: '', program:'试飞一体化平台', type:'应用', status:'正常'}; //设定默认值
@@ -301,9 +292,10 @@ export default class TableList extends PureComponent {
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
+    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
     this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
+    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid[1]}, });
     this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
-    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
     this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
     //this.setState({recordNew: false});
     this.handleModalVisible(true);
@@ -336,7 +328,7 @@ export default class TableList extends PureComponent {
     this.props.dispatch({ type: 'event/fetch', payload: {pid: record._id}, });
     //this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
     //this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
-    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid}, });
+    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid[1]}, });
     this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
     //this.setState({recordNew: false});
     this.handleEventModalVisible(true);

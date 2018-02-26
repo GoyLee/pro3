@@ -44,18 +44,10 @@ export default class PartyList extends PureComponent {
     //treeSelectValue: '',
   };
   componentDidMount() {
-    // eslint-disable-next-line
-    // alert(global.currentUser.name);
     const { dispatch } = this.props;
-    dispatch({
-      type: 'party/fetch',
-    });
-    dispatch({
-      type: 'party/fetchDeptTree',
-    });
-    dispatch({
-      type: 'party/fetchTagTree',
-    });
+    dispatch({ type: 'party/fetch', });
+    dispatch({ type: 'party/fetchDeptTree', });
+    dispatch({ type: 'party/fetchTagTree', });
   }
 // for record updating, coupled with PartyForm.js--------------------------------------------------------
   handleModalVisible = (flag, isRecordUpdated) => {
@@ -67,20 +59,13 @@ export default class PartyList extends PureComponent {
         type: 'party/fetch',
         payload: this.state.queryParams, 
       });
-      this.props.dispatch({
-        type: 'party/fetchDeptTree',
-      });
-      this.props.dispatch({
-        type: 'party/fetchTagTree',
-      });
+      this.props.dispatch({ type: 'party/fetchDeptTree', });
+      this.props.dispatch({ type: 'party/fetchTagTree', });
     }
   }
 
   onCreate = () => { //新增记录
-    this.props.dispatch({
-      type: 'party/setRecord',
-      payload: {}, // {
-    });
+    this.props.dispatch({ type: 'party/setRecord', payload: {}, });
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
@@ -99,12 +84,8 @@ export default class PartyList extends PureComponent {
       type: 'party/fetch',
       payload: this.state.queryParams, 
     });
-    this.props.dispatch({
-      type: 'party/fetchDeptTree',
-    });
-    this.props.dispatch({
-      type: 'party/fetchTagTree',
-    });
+    this.props.dispatch({ type: 'party/fetchDeptTree', });
+    this.props.dispatch({ type: 'party/fetchTagTree', });
   }
 
 // for search form ---------------------------------------------------------------------------
@@ -142,10 +123,7 @@ export default class PartyList extends PureComponent {
       //formValues: {},
       queryParams: {},
     });
-    dispatch({
-      type: 'party/fetch',
-      payload: {},
-    });
+    dispatch({ type: 'party/fetch', payload: {}, });
   }
 
   toggleFormtoggleForm = () => {
@@ -159,7 +137,7 @@ export default class PartyList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="用户名">
+            <FormItem label="名称">
               {getFieldDecorator('username')(
                 <Input placeholder="请输入" />
               )}
@@ -197,14 +175,14 @@ export default class PartyList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则编号">
+            <FormItem label="名称">
               {getFieldDecorator('no')(
                 <Input placeholder="请输入" />
               )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
+            <FormItem label="状态">
               {getFieldDecorator('status')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="0">关闭</Option>
