@@ -50,7 +50,7 @@ class RequirementTable extends PureComponent {
     //message.success(JSON.stringify(pagination));
     const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
     const status = ['正常', '关闭', '挂起', '取消'];
-
+    
     const columns = [
       { //显示行号
         title: 'No',
@@ -74,8 +74,12 @@ class RequirementTable extends PureComponent {
         width: 500,
       },
       {
-        title: '项目群',
-        dataIndex: 'program',
+        title: '标签',
+        dataIndex: 'tagRecords',
+        render(val) {
+          // message.success(JSON.stringify(val));
+          return  <span>{val.map(o => o.username).join('、')}</span>;
+        }
       },
       {
         title: '类别',
