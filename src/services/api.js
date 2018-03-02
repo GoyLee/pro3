@@ -127,8 +127,15 @@ export async function queryFakeList(params) {
   return request(`/api/fake_list?${stringify(params)}`);
 }
 
-export async function fakeAccountLogin(params) {
-  return request('api/login', {
+export async function accountLogin(params) {
+  return request('/api/login', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function accountLogout(params) {
+  return request('/api/logout', {
     method: 'POST',
     body: params,
   });

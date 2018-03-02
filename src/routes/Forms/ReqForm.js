@@ -95,7 +95,8 @@ export default class ReqForm extends PureComponent {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
       const { record, userList, handleModalVisible } = this.props;
-      const user = userList.find((element) => (element.username === this.props.demander));
+      var user = userList.find((element) => (element.username === this.props.demander));
+      user = user || {_id: '', pid: [] }; //防止原来的demander已被删除
       const fields = { 
         ...record,  //装填未更改字段
         ...fieldsValue, //装填可能更改的字段

@@ -84,7 +84,7 @@ export default class PartyForm extends PureComponent {
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="工号">
           {form.getFieldDecorator('code', {
             initialValue: '',
-            rules: [{ required: false, message: 'Please input user\'s code...' }],
+            rules: [{ required: true, message: 'Please input user\'s code...' }],
           })(
             <Input placeholder="请输入"/>
           )}

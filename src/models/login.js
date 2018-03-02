@@ -1,4 +1,4 @@
-import { fakeAccountLogin } from '../services/api';
+import { accountLogin, accountLogout } from '../services/api';
 import { setAuthority } from '../utils/authority';
 
 export default {
@@ -10,7 +10,7 @@ export default {
 
   effects: {
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      const response = yield call(accountLogin, payload);
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -24,7 +24,7 @@ export default {
         window.location.reload();
       }
     },
-    *logout(_, { put, select }) {
+    *logout({ payload }, { call, put, select }) {
       try {
         // get location pathname
         const urlParams = new URL(window.location.href);
@@ -33,6 +33,7 @@ export default {
         urlParams.searchParams.set('redirect', pathname);
         window.history.replaceState(null, 'login', urlParams.href);
       } finally {
+        const response = yield call(accountLogout, payload);
         // yield put(routerRedux.push('/user/login'));
         // Login out after permission changes to admin or user
         // The refresh will automatically redirect to the login page
