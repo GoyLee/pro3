@@ -42,32 +42,20 @@ export async function queryTagTree(params) {
 export async function queryPartyExcel() {
   return request('/api/partyexcel', {xlsx: true});
 }
-export async function TestWrite(res){
-  // return () => {
-    // message.success(Object.keys(res.headers).join(','));//JSON.stringify(res.body)); //"\ufeff",
-    // var r = new stream.Readable(res.body);
-    var binaryData = [];
-    binaryData.push(res.body);
-    var blob = new Blob(binaryData, {type: "application/octet-stream"}); //type: "text/plain;charset=utf-8" //"application/vnd.ms-excel"});//  application/vnd.openxmlformats"}); //, size: res.headers.Content-Length});
-    // res.type = 'blob';
-    // saveAs(res, "test123.txt");
-    saveAs(blob, "test123.txt");
-  // var Stream = new ActiveXObject("ADODB.Stream");
-  // var adTypeBinary=1,adTypeText=2;
-  // Stream.Type = adTypeText;
-  // Stream.CharSet = "iso-8859-1";
-  // Stream.Open();
-  // //Stream.WriteText("\x00\x01\x02\xff\xff");
-  // for(var i=0;i<256;i++){
-  //   Stream.WriteText(String.fromCharCode(i));
-  //   //Stream.WriteText(bin[i]);
-  // }
-  // Stream.SaveToFile("D:\\test.txt", 2);
-  // Stream.Quit();
-  // Stream = null;
-    return;
-  // }
-}
+// export async function TestWrite(res){
+//   // return () => {
+//     // message.success(Object.keys(res.headers).join(','));//JSON.stringify(res.body)); //"\ufeff",
+//     // var r = new stream.Readable(res.body);
+//     var binaryData = [];
+//     binaryData.push(res.body);
+//     var blob = new Blob(binaryData, {type: "application/octet-stream"}); //type: "text/plain;charset=utf-8" //"application/vnd.ms-excel"});//  application/vnd.openxmlformats"}); //, size: res.headers.Content-Length});
+//     // res.type = 'blob';
+//     // saveAs(res, "test123.txt");
+//     saveAs(blob, "test123.txt");
+
+//     return;
+//   // }
+// }
 export async function queryParty(params) {
   //alert(stringify(params));
   return request(`/api/party?${stringify(params)}`);

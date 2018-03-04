@@ -402,40 +402,9 @@ export default class PartyList extends PureComponent {
         break;
     }
   }
-  onDownload = () => { //新增记录
-    this.props.dispatch({ type: 'party/fetchExcel', payload: {}, });
-    // const { party: { blobExcel }, loading } = this.props;
-    // var link = document.createElement('a');
-    // link.href = window.URL.createObjectURL(new Blob([blobExcel], {type: "application/octet-stream"}));
-    // link.download = "test777.txt";
-    // link.click();
-    // window.URL.revokeObjectURL(link.href);
-
-    // window.open("localhost:7001/partyexcel");
-    
-    // window.location.href="localhost:7001/partyexcel"
-
-    // var elemIF = document.createElement("iframe");   
-    // elemIF.src = "localhost:7001/partyexcel";   
-    // elemIF.style.display = "none";   
-    // document.body.appendChild(elemIF);   
-    // var blob = new Blob(["欢迎访问 hangge.com"], {type: "text/plain;charset=utf-8"});
-    // saveAs(blob, "test123.txt");
-
-  // var Stream = new ActiveXObject("ADODB.Stream");
-  // var adTypeBinary=1,adTypeText=2;
-  // Stream.Type = adTypeText;
-  // Stream.CharSet = "iso-8859-1";
-  // Stream.Open();
-  // //Stream.WriteText("\x00\x01\x02\xff\xff");
-  // for(var i=0;i<256;i++){
-  //   Stream.WriteText(String.fromCharCode(i));
-  //   //Stream.WriteText(bin[i]);
+  // onDownload = () => { //新增记录
+  //   this.props.dispatch({ type: 'party/fetchExcel', payload: {}, });
   // }
-  // Stream.SaveToFile("D:\\test.txt", 2);
-  // Stream.Quit();
-  // Stream = null;
-  }
   handleSelectRows = (rows) => {
     this.setState({
       selectedRows: rows,
