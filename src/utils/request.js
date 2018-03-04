@@ -125,6 +125,9 @@ export default function request(url, options) {
       //if (newOptions.method === 'DELETE' || response.status === 204) {
       //  return response.text();
       //}
+      // if (newOptions.xlsx) {
+      //   return response; 
+      // }
       return response.json();
     })
     .catch((e) => {

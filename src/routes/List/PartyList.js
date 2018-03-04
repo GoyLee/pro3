@@ -6,6 +6,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import PartyForm from '../Forms/PartyForm';
 //import { toTreeData } from '../../utils/utils';
 import styles from './TableList.less';
+import {saveAs} from 'file-saver';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -401,14 +402,47 @@ export default class PartyList extends PureComponent {
         break;
     }
   }
+  onDownload = () => { //新增记录
+    this.props.dispatch({ type: 'party/fetchExcel', payload: {}, });
+    // const { party: { blobExcel }, loading } = this.props;
+    // var link = document.createElement('a');
+    // link.href = window.URL.createObjectURL(new Blob([blobExcel], {type: "application/octet-stream"}));
+    // link.download = "test777.txt";
+    // link.click();
+    // window.URL.revokeObjectURL(link.href);
 
+    // window.open("localhost:7001/partyexcel");
+    
+    // window.location.href="localhost:7001/partyexcel"
+
+    // var elemIF = document.createElement("iframe");   
+    // elemIF.src = "localhost:7001/partyexcel";   
+    // elemIF.style.display = "none";   
+    // document.body.appendChild(elemIF);   
+    // var blob = new Blob(["欢迎访问 hangge.com"], {type: "text/plain;charset=utf-8"});
+    // saveAs(blob, "test123.txt");
+
+  // var Stream = new ActiveXObject("ADODB.Stream");
+  // var adTypeBinary=1,adTypeText=2;
+  // Stream.Type = adTypeText;
+  // Stream.CharSet = "iso-8859-1";
+  // Stream.Open();
+  // //Stream.WriteText("\x00\x01\x02\xff\xff");
+  // for(var i=0;i<256;i++){
+  //   Stream.WriteText(String.fromCharCode(i));
+  //   //Stream.WriteText(bin[i]);
+  // }
+  // Stream.SaveToFile("D:\\test.txt", 2);
+  // Stream.Quit();
+  // Stream = null;
+  }
   handleSelectRows = (rows) => {
     this.setState({
       selectedRows: rows,
     });
   }
   render() {
-    const { party: { data }, loading } = this.props;
+    const { party: { data, blobExcel }, loading } = this.props;
     const { deptTree, tagTree } = this.props;
     const { selectedRows, modalVisible } = this.state;
 
@@ -418,7 +452,9 @@ export default class PartyList extends PureComponent {
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
-
+    // href="/api/partyexcel" //this works!!!
+    // onClick={() => this.onDownload()} //cancelled.
+    //href={window.URL.createObjectURL(new Blob([blobExcel?blobExcel.body:"try again"], {type: "application/octet-stream"}))} download="newName.txt"
     return (
       <PageHeaderLayout title="组织机构和人员">
         <Layout>
@@ -442,7 +478,7 @@ export default class PartyList extends PureComponent {
                   <Button icon="plus" type="primary" onClick={() => this.onCreate()}>
                     新建
                   </Button>
-                  <Button icon="download" type="primary" onClick={() => this.onCreate()}>
+                  <Button icon="download" type="primary" href="/api/partyexcel">
                     导出Excel
                   </Button>
                   {
