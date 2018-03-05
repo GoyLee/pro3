@@ -195,7 +195,6 @@ class RequirementTable extends PureComponent {
       }),
     };
 
-
     return (
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>

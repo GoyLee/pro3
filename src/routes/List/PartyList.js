@@ -6,7 +6,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import PartyForm from '../Forms/PartyForm';
 //import { toTreeData } from '../../utils/utils';
 import styles from './TableList.less';
-import {saveAs} from 'file-saver';
+// import {saveAs} from 'file-saver';
 
 const FormItem = Form.Item;
 const { Option } = Select;

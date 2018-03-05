@@ -1,5 +1,5 @@
 import { stringify } from 'qs';
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
 import stream from 'readable-stream';
 import request from '../utils/request';
 import { message } from 'antd';

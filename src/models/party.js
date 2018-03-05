@@ -1,4 +1,4 @@
-import { TestWrite, queryPartyExcel, queryUserList, queryUserDept, queryDeptTree, queryTagTree, queryParty, removeParty, addParty, updateParty } from '../services/api';
+import { queryPartyExcel, queryUserList, queryUserDept, queryDeptTree, queryTagTree, queryParty, removeParty, addParty, updateParty } from '../services/api';
 import { message } from 'antd';
 
 export default {
@@ -56,15 +56,15 @@ export default {
       });
     },
     
-    *fetchExcel({ payload }, { call, put }) {
-      const response = yield call(queryPartyExcel, payload);
-      yield call(TestWrite, response);
+    // *fetchExcel({ payload }, { call, put }) {
+    //   const response = yield call(queryPartyExcel, payload);
+    //   yield call(TestWrite, response);
 
       // yield put({
       //   type: 'saveBlob',
       //   payload: response,
       // });
-    },
+    // },
     *fetch({ payload }, { call, put }) {
       const response = yield call(queryParty, payload);
       yield put({
