@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 
-import { TreeSelect, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, 
+import { TreeSelect, Row, Col, Card, Form, Input, Select, Icon, 
   Radio, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
   //import { toTreeData } from '../../utils/utils';
   
@@ -19,58 +19,19 @@ const { Header, Content, Footer, Sider } = Layout;
 //const TreeNode = Tree.TreeNode;
 
 //CreateForm = Form.create()((props) => {
-@connect(({requirement, party, user}) => ({
-  demander: party.user,
-  record: requirement.record,
-  userList: party.userList,
-  currentUser: user.currentUser,
-  userDept: party.userDept,
+@connect(({implement, party, user}) => ({
+  record: implement.record,
   tagTree: party.tag.list,
-  //deptTree: requirement.dept.list,
+  currentUser: user.currentUser.name,
+  loading: loading.models.event,
 }))
 @Form.create({
-  // 下列代码没必要，因每个form.getFieldDecorator的字段在form.validateFields((err, fieldsValue))中，
-  // 都由包含在fieldsValue对象中了，在okHandle时，使用即可。
-  // onFieldsChange(props, changedFields) {
-  //   const { dispatch, record } = props;
-  //   //message.success(JSON.stringify(changedFields.reqname.value));
-  //   //每个form.getFieldDecorator的字段都需保存到store
-  //   var fieldsValue = {
-  //     ...record,
-  //   }
-  //   if(changedFields.reqname) { 
-  //     fieldsValue = {
-  //       ...fieldsValue,
-  //       reqname: changedFields.reqname.value,
-  //     }
-  //   }
-  //   if(changedFields.program) { 
-  //     fieldsValue = {
-  //       ...fieldsValue,
-  //       program: changedFields.program.value,
-  //     }
-  //   }
-  //   if(changedFields.type) { 
-  //     fieldsValue = {
-  //       ...fieldsValue,
-  //       type: changedFields.type.value,
-  //     }
-  //   }
-  //   if(changedFields.status) { 
-  //     fieldsValue = {
-  //       ...fieldsValue,
-  //       status: changedFields.status.value,
-  //     }
-  //   }
-  //   dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
-  //   //props.onChange(changedFields);
-  // },
   mapPropsToFields(props) { //绑定字段;
     //if(props.record._id) { //不空，是Update。要绑定values和fields。注意判断record对象是否为空对象的方法！不能用record==={}！
       return {
         //每个form.getFieldDecorator的字段都需map
         //department: Form.createFormField({ ...props.record.department, value: props.record.department,}),
-        reqname: Form.createFormField({ ...props.record.reqname, value: props.record.reqname,}),
+        reqname: Form.createFormField({ ...props.record.name, value: props.record.reqname,}),
         // program: Form.createFormField({ ...props.record.program, value: props.record.program,}),
         tags: Form.createFormField({ ...props.record.tags, value: props.record.tags,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
@@ -83,7 +44,7 @@ const { Header, Content, Footer, Sider } = Layout;
     // console.log(values);
   },
 })
-export default class ReqForm extends PureComponent {
+export default class ImplForm extends PureComponent {
   state = {
     // demanderValue: '',
     tagTreeSelectValue: [],
@@ -109,18 +70,18 @@ export default class ReqForm extends PureComponent {
         __v: (record.__v ? record.__v+1 : 1), //缺省应有的字段：更新次数。
       }
      
-      //this.props.dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
+      //this.props.dispatch({ type: 'implement/setRecord', payload: fieldsValue, });
       //修改数据库
       //this.props.handleAdd(fieldsValue);
       if(record._id) { //Update exist record
-        //const { requirement: { record } } = this.props;
+        //const { implement: { record } } = this.props;
         this.props.dispatch({
-          type: 'requirement/update',
+          type: 'implement/update',
           payload: fields, 
         });    
       } else { //Create a new record
         this.props.dispatch({
-          type: 'requirement/add',
+          type: 'implement/add',
           payload: fields, // {
         });
       }
@@ -134,34 +95,14 @@ export default class ReqForm extends PureComponent {
   //   this.props.dispatch({ type: 'party/fetchUserDept', payload: {}, });
   //   this.setState({demanderValue: this.props.currentUser.name});
   // }
-//for 'demander' select event handling-------------------------------------------------------------------
-  //随输入关键字的变化，即时模糊查询匹配的用户列表供选择，并设置store中的user，来更新select，保证输入和显示的一致性
-  handleChange = (value) => {
-    //message.success(JSON.stringify(value));
-    //if(!value){
-     // this.setState({demanderValue: record.demander});
-    //} else {
-    //  this.setState({demanderValue: value});
-    //}
-    this.props.dispatch({ type: 'party/setUser', payload: value,}); 
-    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value}, });
-  }
-  //随用户选择变化，即时获取用户所属部门名称
-  handleSelect = (value) => {
-    //message.success(JSON.stringify(value));
-    const { userList } = this.props;
-    const user = userList.find((element) => (element.username === value));
-    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: user.pid[1]}, }); //pid[0]:试飞中心,pid[1]:各部门
-    //this.setState({demanderValue: value});
-    //this.props.dispatch({ type: 'party/fetchUserList', payload: {username: value.key}, });
-  } 
+
 //render the form-----------------------------------------------------------------------------------------
   //<pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
   render(){
     const { tagTree, demander, userDept, userList, record, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
-      <Modal title="信息化需求" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false)}>
+      <Modal title="需求落实" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false)}>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
           <Select
             mode="combobox"
@@ -182,7 +123,7 @@ export default class ReqForm extends PureComponent {
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="需求">
           {form.getFieldDecorator('reqname', {
             initialValue: '',
-            rules: [{ required: true, message: 'Please input the requirement...' }],
+            rules: [{ required: true, message: 'Please input the implement...' }],
           })(
             <TextArea rows={4} placeholder="请输入"/>
           )}

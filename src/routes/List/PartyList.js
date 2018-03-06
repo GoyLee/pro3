@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import {Tabs, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
-import StandardTable from '../../components/StandardTable';
+import StandardTable from '../../components/ReqTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import PartyForm from '../Forms/PartyForm';
 //import { toTreeData } from '../../utils/utils';
