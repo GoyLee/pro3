@@ -3,7 +3,7 @@ import moment from 'moment';
 import { Table, Alert, Badge, Divider, Popconfirm, message } from 'antd';
 import styles from './index.less';
 
-const statusMap = {'停职':'default', '兼职':'processing', '正常':'success', '离职':'error'};  
+
 class StandardTable extends PureComponent {
   state = {
     selectedRowKeys: [],
@@ -45,6 +45,7 @@ class StandardTable extends PureComponent {
     const { data: { list, pagination }, loading } = this.props;
 
     const status = ['正常', '兼职', '离职', '停职'];
+    const statusMap = {'停职':'default', '兼职':'processing', '正常':'success', '离职':'error'};  
 
     const columns = [
       {
@@ -56,15 +57,19 @@ class StandardTable extends PureComponent {
         dataIndex: 'username',
       },
       {
-        title: '手机号',
-        dataIndex: 'mobile',
+        title: '标签',
+        dataIndex: 'tagRecords',
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        render(val) {
+          // message.success(JSON.stringify(val));
+          return  <span>{val.map(o => o.username).join('、')}</span>;
+        }
       },
       {
         title: '类别',
         dataIndex: 'type',
         sorter: true,
-        align: 'right',
+        //align: 'right',
         //render: val => `${val} 万`,
       },
       //{

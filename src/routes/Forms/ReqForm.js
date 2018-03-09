@@ -13,7 +13,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 
-const { Header, Content, Footer, Sider } = Layout;
+// const { Header, Content, Footer, Sider } = Layout;
 //const SubMenu = Menu.SubMenu;
 //const TreeNode2 = TreeSelect.TreeNode;
 //const TreeNode = Tree.TreeNode;

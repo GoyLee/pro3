@@ -1,9 +1,11 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
 import { Row, Col, Card, Form, Input, Select, Button, InputNumber, Modal, message } from 'antd';
 import { Table, Alert, Menu, Badge, Dropdown, Icon, Divider, Popconfirm } from 'antd';
 //import styles from './TableList.less';
+import ImplForm from '../Forms/ImplForm';
+
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -22,13 +24,14 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 }))
 @Form.create()
 export default class EventForm extends PureComponent {
-  //state = {
-    //demanderValue: '',
-  //};
+  state = {
+    modalVisible: false, //是否显示编辑记录的对话框
+  };
   // componentDidMount() {
   // }
 
   okHandle = () => {
+    // handleModalVisible(false, true);
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
       const { handleModalVisible } = this.props;
@@ -40,22 +43,26 @@ export default class EventForm extends PureComponent {
         //department: this.props.userDept.username, //._id,//缺省应有的字段
       }
       //修改数据库
-     //Create a new record
+      //Create a new record
       this.props.dispatch({
         type: 'event/add',
         payload: fields, // {
       });
-      //handleModalVisible(false, true);
       message.success('添加成功:' + JSON.stringify(fields));
       this.props.dispatch({ type: 'event/fetch', payload: {pid: this.props.pRecord._id}, });
     });
   };
 
+  onImplement = () => {
+    if(this.props.pRecord.type === '设备'|'软件')
+      this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
+    this.props.handleImplModalVisible(true, false);
+  }
   render(){
     const { list, loading, pRecord, user, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //message.success(JSON.stringify(pagination));
-    const status = ['正常', '关闭', '挂起', '取消'];
-    const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
+    const status = ['正常', '关闭', '计划', '挂起'];
+    const statusMap = {'计划':'default', '正常':'processing', '关闭':'success', '挂起':'error'};  
 
     const columns = [
       { //显示行号
@@ -109,10 +116,44 @@ export default class EventForm extends PureComponent {
         width: 60,
         render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
       },
+      {
+        title: '操作',
+        width: 20,
+        //dataIndex: 'operation',
+        //record中是list中的一条记录
+        render: (text, record) => {
+          return (
+            record.sid ?
+              <Fragment>
+                 <a onClick={() => this.onTrack(record)}>更新</a>
+              </Fragment>
+            :
+              <Fragment>
+                <a >----</a>
+              </Fragment>
+          );
+        },
+      },
     ];
     
     return (
-      <Modal title={'跟踪：' + pRecord.reqname} width="45%" visible={modalVisible} onOk={this.okHandle} okText="新增" onCancel={() => handleModalVisible(false, false) } >
+      <Modal title={'跟踪：' + pRecord.reqname} width="45%" 
+        visible={modalVisible} onCancel={() => handleModalVisible(false, false) }
+        footer={[
+          <Button key="submit" onClick={this.okHandle}>
+            增加日常事件
+          </Button>,
+          <Divider type="vertical" />,
+          <Button key="impl" type="primary" onClick={() => this.onImplement()}>
+            新计划项         
+          </Button>,
+          <Button key="impl" onClick={() => this.onImplement()}>实现</Button>,
+          <Button key="impl" onClick={() => this.onImplement()}>挂起</Button>,
+          <Divider type="vertical" />,
+          <Button key="cancel" onClick={() => handleModalVisible(false, false) }>取消</Button>,
+        ]}
+      >
+
         <Table
           loading={loading}
           rowKey={record => record._id}
@@ -124,7 +165,7 @@ export default class EventForm extends PureComponent {
           size="small"
         />
         <br/>
-        <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="跟踪情况">
+        <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="日常跟踪事件">
           {form.getFieldDecorator('name', {
             initialValue: '',
             rules: [{ required: true, message: 'Please input tracking event...' }],
@@ -132,7 +173,7 @@ export default class EventForm extends PureComponent {
             <TextArea rows={2} placeholder="请输入"/>
           )}
         </FormItem>
-        <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="需求状态">
+        {/* <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="需求状态">
           {form.getFieldDecorator('status',{initialValue: '正常'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>
               <Option value="正常">正常</Option>
@@ -141,8 +182,9 @@ export default class EventForm extends PureComponent {
               <Option value="关闭">关闭</Option>
             </Select>
           )}
-        </FormItem>
+        </FormItem> */}
       </Modal>
+
     ); 
   }
 }

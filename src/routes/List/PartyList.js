@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import {Tabs, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
-import StandardTable from '../../components/ReqTable';
+import StandardTable from '../../components/PartyTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import PartyForm from '../Forms/PartyForm';
 //import { toTreeData } from '../../utils/utils';
@@ -64,7 +64,6 @@ export default class PartyList extends PureComponent {
       this.props.dispatch({ type: 'party/fetchTagTree', });
     }
   }
-
   onCreate = () => { //新增记录
     this.props.dispatch({ type: 'party/setRecord', payload: {}, });
     this.handleModalVisible(true);
@@ -145,13 +144,16 @@ export default class PartyList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="状态">
-              {getFieldDecorator('status')(
+            <FormItem label="类别">
+              {getFieldDecorator('type')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="正常">正常</Option>
+                  <Option value="标签">标签</Option>
+                  <Option value="员工">员工</Option>
+                  <Option value="部门">部门</Option>
+                  {/* <Option value="正常">正常</Option>
                   <Option value="离职">离职</Option>
                   <Option value="兼职">兼职</Option>
-                  <Option value="停职">停职</Option>
+                  <Option value="停职">停职</Option> */}
                 </Select>
               )}
             </FormItem>
@@ -245,7 +247,7 @@ export default class PartyList extends PureComponent {
   renderForm() {
     return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
-// Render and handle the Department Tree---------------------------------------------------------------------------
+// Render and handle Department & Tags Tree---------------------------------------------------------------------------
   onExpand = (expandedKeys) => {
     //console.log('onExpand', arguments);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
@@ -428,7 +430,7 @@ export default class PartyList extends PureComponent {
       <PageHeaderLayout title="组织机构和人员">
         <Layout>
           <Sider width={250} style={{ background: '#fff', margin: 2}}>
-            <Tabs defaultActiveKey="1" size='small'>
+            <Tabs defaultActiveKey="2" size='small'>
               <TabPane tab="部门" key="1">
                 {this.renderTree(deptTree, true)}
               </TabPane>

@@ -13,17 +13,19 @@ const { Option } = Select;
 const { TextArea } = Input;
 const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 
-const { Header, Content, Footer, Sider } = Layout;
+// const { Header, Content, Footer, Sider } = Layout;
 //const SubMenu = Menu.SubMenu;
 //const TreeNode2 = TreeSelect.TreeNode;
 //const TreeNode = Tree.TreeNode;
 
 //CreateForm = Form.create()((props) => {
-@connect(({implement, party, user}) => ({
+@connect(({implement, requirement, party, user}) => ({
   record: implement.record,
+  pRecord: requirement.record,
   tagTree: party.tag.list,
+  classList: party.classList,
   currentUser: user.currentUser.name,
-  loading: loading.models.event,
+  // loading: loading.models.implement,
 }))
 @Form.create({
   mapPropsToFields(props) { //绑定字段;
@@ -46,35 +48,43 @@ const { Header, Content, Footer, Sider } = Layout;
 })
 export default class ImplForm extends PureComponent {
   state = {
-    // demanderValue: '',
+    // amountValue: 0,
     tagTreeSelectValue: [],
   };
   onTagChange = (value) => {
     this.setState({tagTreeSelectValue: value});
   }
-
+  onPriceChange = (value) => {
+    var q = this.props.form.getFieldValue('quantity');
+    this.props.form.setFieldsValue({
+      amount:  q * value,
+    });
+  }
+  onQuantityChange = (value) => {
+    var p = this.props.form.getFieldValue('price');
+    this.props.form.setFieldsValue({
+      amount:  p * value,
+    });
+  }
   okHandle = () => {
+    const { record, pRecord, currentUser, handleModalVisible, dispatch } = this.props;
+    // message.success('更改成功:');
+
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
-      const { record, userList, handleModalVisible } = this.props;
-      var user = userList.find((element) => (element.username === this.props.demander));
-      user = user || {_id: '', pid: [] }; //防止原来的demander已被删除
+      // user = user || {_id: '', pid: [] }; //防止原来的demander已被删除
       const fields = { 
         ...record,  //装填未更改字段
         ...fieldsValue, //装填可能更改的字段
-        demander: this.props.demander, //user._id,//缺省应有的字段：用户名
-        department: this.props.userDept.username, //._id,//缺省应有的字段：用户的部门名
-        demanderId: user._id,
-        deptIds: user.pid,
+        user: currentUser, //user._id,//缺省应有的字段：填写人
+        pid: pRecord._id,
         updatedAt: Date.now(), //缺省应有的字段：更新时间。必须有，避免上一条记录的遗留痕迹
         __v: (record.__v ? record.__v+1 : 1), //缺省应有的字段：更新次数。
       }
      
       //this.props.dispatch({ type: 'implement/setRecord', payload: fieldsValue, });
       //修改数据库
-      //this.props.handleAdd(fieldsValue);
       if(record._id) { //Update exist record
-        //const { implement: { record } } = this.props;
         this.props.dispatch({
           type: 'implement/update',
           payload: fields, 
@@ -85,57 +95,83 @@ export default class ImplForm extends PureComponent {
           payload: fields, // {
         });
       }
+      setTimeout(function () {
+        dispatch({ type: 'event/fetch', payload: {pid: pRecord._id}, });
+        // message.success('更改成功:' + JSON.stringify(fields));
+      }, 2000); //setTimeout()中不能用this指针
       handleModalVisible(false, true);
-      message.success('更改成功:' + JSON.stringify(fields));
     });
   };
-  // componentDidMount() {
+  componentDidMount() {
+    const { pRecord, dispatch} = this.props;
   //   eslint-disable-next-line
   //   alert(global.currentUser.name);
-  //   this.props.dispatch({ type: 'party/fetchUserDept', payload: {}, });
+    // if(pRecord.type === '设备')
+    //   this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
   //   this.setState({demanderValue: this.props.currentUser.name});
-  // }
+  }
 
 //render the form-----------------------------------------------------------------------------------------
   //<pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
   render(){
-    const { tagTree, demander, userDept, userList, record, modalVisible, form, handleModalVisible } = this.props; //deptTree,
+    const { tagTree, classList, pRecord, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
-      <Modal title="需求落实" visible={modalVisible} onOk={this.okHandle} onCancel={() => handleModalVisible(false, false)}>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
-          <Select
-            mode="combobox"
-            value={demander}
-            defaultActiveFirstOption={true}
-            showArrow={false}
-            filterOption={false}
-            style={{ width: '100%' }}
-            onChange={this.handleChange}
-            onSelect={this.handleSelect}
-          >
-            {userList.map(d => <Option key={d.username}>{d.username}</Option>)}
-          </Select>
+      <Modal title={'实现：' + pRecord.reqname} visible={modalVisible} onOk={this.okHandle} 
+            onCancel={() => handleModalVisible(false, false)}>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="年度">
+          {form.getFieldDecorator('budgetyear',{initialValue: '2018'})( 
+            <Select  style={{ width: '100%' }}>
+              <Option value="2018">2018年</Option>
+              <Option value="2019">2019年</Option>
+              <Option value="2020">2020年</Option>
+              <Option value="2021">2021年</Option>
+            </Select>
+          )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="部门">
-          <span className="ant-form-text">{userDept.username}</span>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="目标">
+          {form.getFieldDecorator('name',{
+            initialValue: pRecord.reqname,
+            rules: [{ required: true, message: 'Please input the request...' }],
+          })( 
+            pRecord.type === '设备'|'软件' ? 
+              <Select mode='combobox' style={{ width: '100%' }}>
+                {classList.map(d => <Option key={d.username}>{d.username}</Option>)}
+                {/* <Option value="台式机">台式机</Option>
+                <Option value="工作站">工作站</Option>
+                <Option value="笔记本">笔记本</Option>
+                <Option value="打印机">打印机</Option> */}
+              </Select>
+            :
+              <Input placeholder="请输入"/>
+          )}
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="需求">
-          {form.getFieldDecorator('reqname', {
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="规格">
+          {form.getFieldDecorator('spec', {
             initialValue: '',
-            rules: [{ required: true, message: 'Please input the implement...' }],
+            rules: [{ required: false, message: 'Please input the spec.s...' }],
           })(
             <TextArea rows={4} placeholder="请输入"/>
           )}
         </FormItem>
-        {/* <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="数量">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="数量">
           {form.getFieldDecorator('quantity', {
             initialValue: 1,
             rules: [{ required: true, message: 'Please input quantity...' }],
           })(
-            <InputNumber rows={4} placeholder="请输入"/>
+            <InputNumber onChange={this.onQuantityChange} placeholder="请输入"/>
           )}
-        </FormItem> */}
+        </FormItem>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="单价">
+          {form.getFieldDecorator('price', { initialValue: 0} )(
+            <InputNumber onChange={this.onPriceChange} step={1} precision={2}  placeholder="请输入"/>
+          )}
+        </FormItem>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="总价">
+          {form.getFieldDecorator('amount', { initialValue: '0.00'} )(
+            <Input disabled addonAfter='万元' placeholder="请输入"/>
+          )}
+        </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签">
           {form.getFieldDecorator('tags', {
             rules: [{ required: false, message: 'Please input the tags...' }],
@@ -149,33 +185,6 @@ export default class ImplForm extends PureComponent {
             />
           )}
         </FormItem> 
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
-          {form.getFieldDecorator('type',{initialValue: '应用'})( 
-            <RadioGroup width='100%'>
-              <Radio value="应用">应用</Radio>
-              <Radio value="设备">设备</Radio>
-              <Radio value="软件">软件</Radio>
-              <Radio value="服务">服务</Radio>
-              <Radio value="网络">网络</Radio>
-            </RadioGroup>
-            // <Select  style={{ width: '100%' }}>
-            //   <Option value="应用">应用</Option>
-            //   <Option value="设备">设备</Option>
-            //   <Option value="服务">服务</Option>
-            //   <Option value="网络">网络</Option>
-            // </Select>
-          )}
-        </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="状态">
-          {form.getFieldDecorator('status',{initialValue: '正常'})( 
-            <Select  style={{ width: '100%' }}>
-              <Option value="正常">正常</Option>
-              <Option value="取消">取消</Option>
-              <Option value="挂起">挂起</Option>
-              <Option value="关闭">关闭</Option>
-            </Select>
-          )}
-        </FormItem>
       </Modal>
     ); 
   }

@@ -1,4 +1,4 @@
-import { queryPartyExcel, queryUserList, queryUserDept, queryDeptTree, queryTagTree, queryParty, removeParty, addParty, updateParty } from '../services/api';
+import { queryPartyExcel, queryPartyClass, queryUserList, queryOneParty, queryDeptTree, queryTagTree, queryParty, removeParty, addParty, updateParty } from '../services/api';
 import { message } from 'antd';
 
 export default {
@@ -9,6 +9,7 @@ export default {
     user: '', //当前表单的填写人姓名
     userDept: {}, //当前表单填写人所属的部门
     userList: [], //根据user模糊查询出的list, 作为select‘s options
+    classList: [], //某类party’s List
 
     dept: {
       list: [], // a tree list
@@ -34,9 +35,16 @@ export default {
       });
     },
     *fetchUserDept({ payload }, { call, put }) { //获取员工的部门
-      const response = yield call(queryUserDept, payload);
+      const response = yield call(queryOneParty, payload);
       yield put({
         type: 'saveUserDept',
+        payload: response,
+      });
+    },
+    *fetchPartyClass({ payload }, { call, put }) { //获取员工的部门
+      const response = yield call(queryPartyClass, payload);
+      yield put({
+        type: 'savePartyClass',
         payload: response,
       });
     },
@@ -99,6 +107,12 @@ export default {
       return {
         ...state,
         userDept: action.payload,
+      };
+    },
+    savePartyClass(state, action) {
+      return {
+        ...state,
+        classList: action.payload,
       };
     },
     save(state, action) {

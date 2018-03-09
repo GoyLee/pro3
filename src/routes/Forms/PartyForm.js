@@ -51,8 +51,9 @@ export default class PartyForm extends PureComponent {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
       const { record, handleModalVisible } = this.props;
-      fieldsValue = { 
-        ...fieldsValue, //装填原有字段
+      fieldsValue = {
+        ...record, //装填未更改字段
+        ...fieldsValue, //装填可能更改的字段
         updatedAt: Date.now(), //缺省应有的字段：更新时间。必须有，避免上一条记录的遗留痕迹
         __v: (record.__v ? record.__v+1 : 1), //缺省应有的字段：更新次数。
       }
@@ -61,6 +62,8 @@ export default class PartyForm extends PureComponent {
     //     payload: fieldsValue, // {
     //   });
       if(record._id) { //Update exist record
+        //避免标签引用自己！
+        fieldsValue.tags = fieldsValue.tags.filter( (t) => t != fieldsValue._id);
         this.props.dispatch({
           type: 'party/update',
           payload: {...record, ...fieldsValue}, 
@@ -129,7 +132,7 @@ export default class PartyForm extends PureComponent {
           )}
         </FormItem>  
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="类别">
-          {form.getFieldDecorator('type',{initialValue: '员工'})( //~defaultValue="部门"
+          {form.getFieldDecorator('type',{initialValue: '标签'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>
               <Option value="员工">员工</Option>
               <Option value="部门">部门</Option>

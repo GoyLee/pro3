@@ -5,6 +5,7 @@ import { Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdo
 import StandardTable from '../../components/StandardTable';
 import ReqForm from '../Forms/ReqForm';
 import EventForm from '../Forms/EventForm';
+import ImplForm from '../Forms/ImplForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import moment from 'moment';
 
@@ -31,6 +32,7 @@ export default class TableList extends PureComponent {
   state = {
     modalVisible: false, //是否显示编辑记录的对话框
     eventModalVisible: false, //是否显示事件列表的对话框
+    implModalVisible: false, //是否显示事件列表的对话框
 
     expandForm: false,
     collapsed: false,
@@ -315,6 +317,17 @@ export default class TableList extends PureComponent {
     });
   }
 //for requirements tracking, coupled with EventForm.js-------------------------------------------------
+  handleImplModalVisible = (flag, isRecordUpdated) => {
+    this.setState({
+      implModalVisible: flag,
+    });
+    // if(isRecordUpdated) {
+    //   this.props.dispatch({
+    //     type: 'requirement/fetch',
+    //     payload: this.state.queryParams, 
+    //   });
+    // }
+  }  
   handleEventModalVisible = (flag, isRecordUpdated) => {
     this.setState({
       eventModalVisible: flag,
@@ -340,7 +353,7 @@ export default class TableList extends PureComponent {
 // Render the List-------------------------------------------------------------------------------------
   render() {
     const { requirement: { data }, loading } = this.props;
-    const { selectedRows, modalVisible, eventModalVisible } = this.state;
+    const { selectedRows, modalVisible, eventModalVisible, implModalVisible } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -520,7 +533,12 @@ export default class TableList extends PureComponent {
         />
         <EventForm
             handleModalVisible={this.handleEventModalVisible}
+            handleImplModalVisible={this.handleImplModalVisible}
             modalVisible={eventModalVisible}
+        />
+        <ImplForm
+            handleModalVisible={this.handleImplModalVisible}
+            modalVisible={implModalVisible}
         />
       </PageHeaderLayout>
     );

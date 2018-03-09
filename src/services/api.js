@@ -12,6 +12,26 @@ export async function queryProjectNotice() {
 export async function queryActivities() {
   return request('/api/activities');
 }
+
+//Implement=============================================================================
+export async function addImplement(params) {
+  return request('/api/implement', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'post',
+    },
+  });
+}
+export async function updateImplement(params) {
+  return request('/api/implement', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'update',
+    },
+  });
+}
 //Event=============================================================================
 export async function queryEvent(params) {
   //alert(stringify(params));
@@ -30,8 +50,11 @@ export async function addEvent(params) {
 export async function queryUserList(params) {
   return request(`/api/userlist?${stringify(params)}`);
 }
-export async function queryUserDept(params) {
-  return request(`/api/userdept?${stringify(params)}`);
+export async function queryPartyClass(params) {
+  return request(`/api/partyclass?${stringify(params)}`);
+}
+export async function queryOneParty(params) {
+  return request(`/api/oneparty?${stringify(params)}`);
 }
 export async function queryDeptTree(params) {
   return request(`/api/depttree?${stringify(params)}`);

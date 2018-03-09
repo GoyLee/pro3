@@ -1,4 +1,4 @@
-import { queryDept, queryImplement, removeImplement, addImplement, updateImplement } from '../services/api';
+import { addImplement, updateImplement } from '../services/api';
 
 export default {
   namespace: 'implement',
