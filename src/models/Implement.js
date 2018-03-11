@@ -1,10 +1,11 @@
-import { addImplement, updateImplement } from '../services/api';
+import { queryImplement, addImplement, updateImplement, changeReqState } from '../services/api';
 
 export default {
   namespace: 'implement',
 
   state: {
     record: {}, //从list传给form的记录缓存
+    // type: '', //计划、实际
     // data: {
     //   list: [],
     //   pagination: {},
@@ -12,15 +13,13 @@ export default {
   },
 
   effects: {
-    // *fetch({ payload }, { call, put }) {
-    //   const response = yield call(queryImplement, payload);
-    //   yield put({
-    //     type: 'save',
-    //     payload: response,
-    //   });
-    //   // eslint-disable-next-line
-    //   //console.log(JSON.stringify(data));
-    // },
+    *fetchOne({ payload }, { call, put }) {
+      const response = yield call(queryImplement, payload);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
     //add POST后的response会更新state！
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addImplement, payload);
@@ -31,19 +30,19 @@ export default {
       const response = yield call(updateImplement, payload);
       if (callback) callback();
     },
-    // *remove({ payload, callback }, { call, put }) {
-    //   const response = yield call(removeImplement, payload);
-    //   if (callback) callback();
-    // },
+    *action({ payload, callback }, { call, put }) {
+      const response = yield call(changeReqState, payload);
+      if (callback) callback();
+    },
   },
 
   reducers: {
-    // save(state, action) {
-    //   return {
-    //     ...state,
-    //     data: action.payload,
-    //   };
-    // },
+    save(state, action) {
+      return {
+        ...state,
+        record: action.payload,
+      };
+    },
 
     setRecord(state, action) {
       return {
@@ -51,5 +50,11 @@ export default {
         record: action.payload,
       };
     },
+    // setType(state, action) {
+    //   return {
+    //     ...state,
+    //     type: action.payload,
+    //   };
+    // },
   },
 };

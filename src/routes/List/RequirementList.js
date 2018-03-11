@@ -291,8 +291,8 @@ export default class TableList extends PureComponent {
     this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid[1]}, });
     
     //初始化“需求”记录, 如注释掉，则下次新建时会自动带着上次的信息！
-    // const record = {reqname: '', program:'试飞一体化平台', type:'应用', status:'正常'}; //设定默认值
-    // this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
+    const record = {reqname: '', program:'试飞一体化平台', type:'应用', state:'提出'}; //设定默认值
+    this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
     
     this.handleModalVisible(true);
   }
@@ -316,28 +316,22 @@ export default class TableList extends PureComponent {
       payload: this.state.queryParams, 
     });
   }
-//for requirements tracking, coupled with EventForm.js-------------------------------------------------
+//for requirements tracking, coupled with EventForm.js & ImplForm.js-------------------------------------------------
   handleImplModalVisible = (flag, isRecordUpdated) => {
     this.setState({
       implModalVisible: flag,
     });
     // if(isRecordUpdated) {
-    //   this.props.dispatch({
-    //     type: 'requirement/fetch',
-    //     payload: this.state.queryParams, 
-    //   });
+      this.props.dispatch({ type: 'requirement/fetch', payload: this.state.queryParams, });
     // }
   }  
   handleEventModalVisible = (flag, isRecordUpdated) => {
     this.setState({
       eventModalVisible: flag,
     });
-    if(isRecordUpdated) {
-      this.props.dispatch({
-        type: 'requirement/fetch',
-        payload: this.state.queryParams, 
-      });
-    }
+    // if(isRecordUpdated) {
+      this.props.dispatch({ type: 'requirement/fetch', payload: this.state.queryParams, });
+    // }
   }
   
   onTrack = (record) => { //跟踪事件
@@ -360,8 +354,8 @@ export default class TableList extends PureComponent {
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
-    const statusMap = {'挂起':'default', '正常':'processing', '关闭':'success', '取消':'error'};  
-    const status = ['正常', '关闭', '挂起', '取消'];
+    const statusMap = {'提出':'default', '处理中':'processing', '关闭':'success', '挂起':'warning', '取消':'error'};  
+    const status = ['提出', '处理中', '关闭', '挂起', '取消'];
     const columns = [
       { //显示行号
         title: 'No',
@@ -410,7 +404,7 @@ export default class TableList extends PureComponent {
       //},
       {
         title: '状态',
-        dataIndex: 'status',
+        dataIndex: 'state',
         
         filters: [
           {
@@ -428,6 +422,10 @@ export default class TableList extends PureComponent {
           {
             text: status[3],
             value: status[3],
+          },
+          {
+            text: status[4],
+            value: status[4],
           },
         ],
         //render: val => <span>{val}</span>,

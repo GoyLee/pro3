@@ -65,7 +65,7 @@ export default class PartyList extends PureComponent {
     }
   }
   onCreate = () => { //新增记录
-    this.props.dispatch({ type: 'party/setRecord', payload: {}, });
+    this.props.dispatch({ type: 'party/setRecord', payload: {}, }); //清空缓存
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录

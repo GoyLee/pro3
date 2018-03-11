@@ -56,10 +56,10 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
   //       type: changedFields.type.value,
   //     }
   //   }
-  //   if(changedFields.status) { 
+  //   if(changedFields.state) { 
   //     fieldsValue = {
   //       ...fieldsValue,
-  //       status: changedFields.status.value,
+  //       state: changedFields.state.value,
   //     }
   //   }
   //   dispatch({ type: 'requirement/setRecord', payload: fieldsValue, });
@@ -75,7 +75,7 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
         tags: Form.createFormField({ ...props.record.tags, value: props.record.tags,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
         //demander: Form.createFormField({ ...props.record.demander, value: props.record.demander,}),
-        status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
+        state: Form.createFormField({ ...props.record.state, value: props.record.state,}),
       };
     //}
   },
@@ -226,12 +226,13 @@ export default class ReqForm extends PureComponent {
           )}
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="状态">
-          {form.getFieldDecorator('status',{initialValue: '正常'})( 
-            <Select  style={{ width: '100%' }}>
-              <Option value="正常">正常</Option>
-              <Option value="取消">取消</Option>
-              <Option value="挂起">挂起</Option>
+          {form.getFieldDecorator('state',{initialValue: '提出'})( 
+            <Select disabled style={{ width: '100%' }}>
+              <Option value="提出">提出</Option>
+              <Option value="处理中">处理中</Option>
               <Option value="关闭">关闭</Option>
+              <Option value="挂起">挂起</Option>
+              <Option value="取消">取消</Option>
             </Select>
           )}
         </FormItem>

@@ -14,6 +14,9 @@ export async function queryActivities() {
 }
 
 //Implement=============================================================================
+export async function queryImplement(params) {
+  return request(`/api/oneimplement?${stringify(params)}`);
+}
 export async function addImplement(params) {
   return request('/api/implement', {
     method: 'POST',
@@ -32,9 +35,17 @@ export async function updateImplement(params) {
     },
   });
 }
+export async function changeReqState(params) {
+  return request('/api/implement', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'changeReqState',
+    },
+  });
+}
 //Event=============================================================================
 export async function queryEvent(params) {
-  //alert(stringify(params));
   return request(`/api/event?${stringify(params)}`);
 }
 export async function addEvent(params) {
@@ -80,7 +91,6 @@ export async function queryPartyExcel() {
 //   // }
 // }
 export async function queryParty(params) {
-  //alert(stringify(params));
   return request(`/api/party?${stringify(params)}`);
 }
 export async function removeParty(params) {
@@ -112,7 +122,6 @@ export async function updateParty(params) {
 }
 //Requirement========================================================
 export async function queryRequirement(params) {
-  //alert(stringify(params));
   return request(`/api/requirement?${stringify(params)}`);
 }
 export async function removeRequirement(params) {
