@@ -1,13 +1,13 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
+import moment from 'moment';
 import { Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu,
-   InputNumber, DatePicker, Modal, Badge, Divider, Popconfirm,message } from 'antd';
+  InputNumber, DatePicker, Modal, Badge, Divider, Popconfirm,message } from 'antd';
 import StandardTable from '../../components/StandardTable';
 import ReqForm from '../Forms/ReqForm';
 import EventForm from '../Forms/EventForm';
 import ImplForm from '../Forms/ImplForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import moment from 'moment';
 
 
 import styles from './TableList.less';
@@ -21,9 +21,10 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 //const SubMenu = Menu.SubMenu;
 //const TreeNode2 = TreeSelect.TreeNode;
 //const TreeNode = Tree.TreeNode;
-
-@connect(({ requirement, loading, user }) => ({
+//initialize the List--------------------------------------------------------------------------------
+@connect(({ requirement, party, loading, user }) => ({
   requirement,
+  userList: party.userList,
   loading: loading.models.requirement,
   currentUser: user.currentUser,
 }))
@@ -45,6 +46,7 @@ export default class TableList extends PureComponent {
     const { dispatch } = this.props;
     dispatch({ type: 'requirement/fetch',});
     dispatch({ type: 'party/fetchTagTree', });
+    dispatch({ type: 'party/fetchUserList', payload: {}, }); //username: name
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -284,23 +286,26 @@ export default class TableList extends PureComponent {
   onCreate = () => { //新增记录
     //this.setState({recordNew: true});
     //message.success(JSON.stringify(currentUser));
-    const { currentUser } = this.props;
+    const { currentUser, userList } = this.props;
     const name = currentUser.name;
-    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
-    this.props.dispatch({ type: 'party/setUser', payload: name, }); // 缺省需求人是currentUser
-    this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid[1]}, });
+    // this.props.dispatch({ type: 'party/fetchUserList', payload: {}, }); //username: name
+
+    // this.props.dispatch({ type: 'party/setUser', payload: name, }); // 缺省需求人是currentUser
+    // this.props.dispatch({ type: 'party/fetchUserDept', payload: {id: currentUser.pid[1]}, });
+    const user = userList.find((element) => (element.username === name));
+    const dept = user.pid.length > 1 ? user.pid[1].username : user.pid[0].username;
     
     //初始化“需求”记录, 如注释掉，则下次新建时会自动带着上次的信息！
-    const record = {reqname: '', program:'试飞一体化平台', type:'应用', state:'提出'}; //设定默认值
+    const record = {demander: name, department: dept, type:'应用', state:'提出'}; //设定默认值
     this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
     
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
-    this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
-    this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
+    // this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
+    // this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
     //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid[1]}, });
-    this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
+    // this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
     this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
     //this.setState({recordNew: false});
     this.handleModalVisible(true);

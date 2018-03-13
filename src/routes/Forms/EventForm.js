@@ -32,27 +32,28 @@ export default class EventForm extends PureComponent {
   };
   // componentDidMount() {
   // }
-
-  okHandle = () => {
+  onCreateEvent = (action) => {
     // handleModalVisible(false, true);
-    this.props.form.validateFields((err, fieldsValue) => {
+    const {pRecord, currentUser, dispatch, form} = this.props;
+    form.validateFields((err, fieldsValue) => {
       if (err) return;
-      const { handleModalVisible } = this.props;
       const fields = { 
         ...fieldsValue, //装填可能更改的字段
-        user: this.props.currentUser, //user._id,//缺省应有的字段：填写人
-        pid:  this.props.pRecord._id, //缺省应有的字段：关于什么的事件
+        user: currentUser, //user._id,//缺省应有的字段：填写人
+        pid:  pRecord._id, //缺省应有的字段：关于什么的事件
+        action: action,
         createdAt: Date.now(), //缺省应有的字段：创建时间。必须有，避免上一条记录的遗留痕迹
-        //department: this.props.userDept.username, //._id,//缺省应有的字段
       }
       //修改数据库
       //Create a new record
-      this.props.dispatch({
-        type: 'event/add',
-        payload: fields, // {
-      });
-      message.success('添加成功:' + JSON.stringify(fields));
-      this.props.dispatch({ type: 'event/fetch', payload: {pid: this.props.pRecord._id}, });
+      dispatch({ type: 'event/add', payload: fields, });
+      // message.success('添加成功:' + JSON.stringify(fields));
+      // 刷新Form
+      dispatch({ type: 'event/fetch', payload: {pid: pRecord._id}, });
+      if (action != '日常') {
+        const rec2 = {...pRecord, state: action,}
+        dispatch({ type: 'requirement/setRecord', payload: rec2 }); 
+      }
     });
   };
 
@@ -65,8 +66,8 @@ export default class EventForm extends PureComponent {
         type: type, 
         pid: pRecord._id,
         quantity: 1,
-        price: 1,
-        amount: 1,
+        price: 1.00,
+        amount: 1.00,
         date: moment(Date.now()).format('YYYY-MM-DD'), //'2018-12-31'
       }
       dispatch({ type: 'implement/setRecord', payload: rec }); 
@@ -87,25 +88,6 @@ export default class EventForm extends PureComponent {
       this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
     this.props.handleImplModalVisible(true, true);
   };
-  changeReqState = (action) => {
-    const {pRecord, currentUser, dispatch, handleModalVisible} = this.props;
-    //初始化缓存
-    const rec = {
-      action: action,
-      user: currentUser,
-      pid: pRecord._id, 
-      reqname: pRecord.reqname,
-      state: action,
-    }
-    dispatch({ type: 'implement/action', payload: rec });
-    // dispatch({ type: 'event/fetch', payload: {pid: pRecord._id}, });
-    // handleModalVisible(false, false);
-    const rec2 = {
-      ...pRecord,
-      state: action,
-      }
-    dispatch({ type: 'requirement/setRecord', payload: rec2 }); 
-  }
 
   render(){
     const { list, loading, pRecord, user, modalVisible, form, handleModalVisible } = this.props; //deptTree,
@@ -131,12 +113,12 @@ export default class EventForm extends PureComponent {
       {
         title: '跟踪事件',
         dataIndex: 'name',
-        width: 300,
+        width: 280,
       },
       {
         title: '跟踪人',
         dataIndex: 'user',//'recorder',
-        width: 30,
+        width: 35,
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
       },
       {
@@ -175,15 +157,15 @@ export default class EventForm extends PureComponent {
     const action_Button = {
       '计划': <Button key="impl" type="primary" onClick={() => this.handleCreateImpl('计划')}>新增计划项</Button>,
       '实际': <Button key="impl" onClick={() => this.handleCreateImpl('实际')}>新增实际项</Button>,
-      '关闭': <Button key="impl" onClick={() => this.changeReqState('关闭')}>关闭需求</Button>,
-      '挂起': <Button key="impl" onClick={() => this.changeReqState('挂起')}>挂起需求</Button>,
-      '取消': <Button key="impl" onClick={() => this.changeReqState('取消')}>取消需求</Button>,
+      '关闭': <Button key="impl" onClick={() => this.onCreateEvent('关闭')}>关闭需求</Button>,
+      '挂起': <Button key="impl" onClick={() => this.onCreateEvent('挂起')}>挂起需求</Button>,
+      '取消': <Button key="impl" onClick={() => this.onCreateEvent('取消')}>取消需求</Button>,
     };
     return (
       <Modal title={'需求跟踪事件表 | 需求：' + pRecord.reqname + ' [ ' + pRecord.state + ' ]'} width="50%" 
         visible={modalVisible} onCancel={() => handleModalVisible(false, false) }
         footer={[
-          <Button key="submit" onClick={this.okHandle}>新增日常事件</Button>,
+          <Button key="submit" onClick={() => this.onCreateEvent('日常')}>新增日常事件</Button>,
           <Divider type="vertical" />,
           state_actions[pRecord.state || '提出'].map(a => action_Button[a]), //state->actions->Buttons
           <Divider type="vertical" />,
@@ -200,9 +182,10 @@ export default class EventForm extends PureComponent {
           pagination={false}
           scroll={{ y: 300 }}
           size="small"
+          style={{ fontSize: 18, color: '#08c' }}
         />
         <br/>
-        <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="日常跟踪事件">
+        <FormItem labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} label="事件说明">
           {form.getFieldDecorator('name', {
             initialValue: '',
             rules: [{ required: true, message: 'Please input tracking event...' }],

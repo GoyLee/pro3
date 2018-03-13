@@ -1,7 +1,9 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import {Tabs, Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
-import StandardTable from '../../components/PartyTable';
+import moment from 'moment';
+import {Tabs, Tree, Layout, Row, Col, Card, Form, Alert, Badge, Divider, Popconfirm, 
+    Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
+import StandardTable from '../../components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import PartyForm from '../Forms/PartyForm';
 //import { toTreeData } from '../../utils/utils';
@@ -64,15 +66,14 @@ export default class PartyList extends PureComponent {
       this.props.dispatch({ type: 'party/fetchTagTree', });
     }
   }
-  onCreate = () => { //新增记录
-    this.props.dispatch({ type: 'party/setRecord', payload: {}, }); //清空缓存
+  onCreate = (obj) => { //新增记录
+    this.props.dispatch({ type: 'party/setRecord', payload: obj, }); //清空缓存
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
-    this.props.dispatch({
-      type: 'party/setRecord',
-      payload: record, // {
-    });
+    //承接后端mongoose.populate()的字段，提取_id, 还原为原数据库中的字段
+    const r = {...record, tags: record.tags.map(o => o._id)};
+    this.props.dispatch({type: 'party/setRecord', payload: r, });
     this.handleModalVisible(true);
   }
   onRemove = (record) => { //删除记录
@@ -412,6 +413,8 @@ export default class PartyList extends PureComponent {
       selectedRows: rows,
     });
   }
+
+  
   render() {
     const { party: { data, blobExcel }, loading } = this.props;
     const { deptTree, tagTree } = this.props;
@@ -423,6 +426,94 @@ export default class PartyList extends PureComponent {
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
+
+    const status = ['正常', '临时', '终止', '暂停'];
+    const statusMap = {'暂停':'default', '临时':'processing', '正常':'success', '终止':'error'};  
+
+    const columns = [
+      {
+        title: '工号',
+        dataIndex: 'code',
+      },
+      {
+        title: '名称',
+        dataIndex: 'username',
+      },
+      {
+        title: '标签',
+        dataIndex: 'tags',
+        // dataIndex: 'tagRecords',
+        render(val) {
+          return  <span>{val.map(o => o.username).join('、')}</span>;
+        }
+      },
+      {
+        title: '类别',
+        dataIndex: 'type',
+        sorter: true,
+        //align: 'right',
+        //render: val => `${val} 万`,
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        
+        filters: [
+          {
+            text: status[0],
+            value: status[0],
+          },
+          {
+            text: status[1],
+            value: status[1],
+          },
+          {
+            text: status[2],
+            value: status[2],
+          },
+          {
+            text: status[3],
+            value: status[3],
+          },
+        ],
+        //render: val => <span>{val}</span>,
+        render(val) {
+          return <Badge status={statusMap[val]} text={val} />;
+        },
+      },
+      {
+        title: '更新日期',
+        dataIndex: 'updatedAt',
+        sorter: true,
+        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '操作',
+        //dataIndex: 'operation',
+        //record中是list中的一条记录
+        render: (text, record) => {
+          return (
+            <Fragment>
+              <a onClick={() => this.props.onEdit(record)}>编辑</a>
+              <Divider type="vertical" />
+              <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record)}>
+                <a href="#">删除</a>
+              </Popconfirm>
+            </Fragment>
+            //  <a onClick={() => this.props.onRemove(record)}>删除</a>
+            //<a onClick={() => message.success(record._id)}>编辑</a>
+            //<a onClick={() => this.save(record.key)}>Save</a>    
+            //this.state.dataSource.length > 1 ?
+            //(
+              //<Popconfirm title="Sure to delete?" onConfirm={() => this.onDelete(record.key)}>
+              //  <a href="#">Delete</a>
+              //</Popconfirm>
+            //) : null
+          );
+        },
+      },
+    ];
+
     // href="/api/partyexcel" //this works!!!
     // onClick={() => this.onDownload()} //cancelled.
     //href={window.URL.createObjectURL(new Blob([blobExcel?blobExcel.body:"try again"], {type: "application/octet-stream"}))} download="newName.txt"
@@ -446,9 +537,9 @@ export default class PartyList extends PureComponent {
                   {this.renderForm()}
                 </div>
                 <div className={styles.tableListOperator}>
-                  <Button icon="plus" type="primary" onClick={() => this.onCreate()}>
-                    新建
-                  </Button>
+                  <Button icon="plus" type="primary" onClick={() => this.onCreate({type:'员工'})}>新建员工</Button>
+                  <Button icon="plus" onClick={() => this.onCreate({type:'部门'})}>新建部门</Button>
+                  <Button icon="plus" onClick={() => this.onCreate({type:'标签'})}>新建标签</Button>
                   <Button icon="download" type="primary" href="/api/partyexcel">
                     导出Excel
                   </Button>
@@ -467,6 +558,7 @@ export default class PartyList extends PureComponent {
                 </div>
                 <StandardTable
                   selectedRows={selectedRows}
+                  columns={columns}
                   loading={loading}
                   data={data}
                   onSelectRow={this.handleSelectRows}

@@ -6,8 +6,8 @@ export default {
 
   state: {
     record: {}, //在list传给form的记录缓存
-    user: '', //当前表单的填写人姓名
-    userDept: {}, //当前表单填写人所属的部门
+    // user: '', //当前表单的填写人姓名
+    // userDept: '', //当前表单填写人所属的部门
     userList: [], //根据user模糊查询出的list, 作为select‘s options
     classList: [], //某类party’s List
 
@@ -34,13 +34,13 @@ export default {
         payload: response,
       });
     },
-    *fetchUserDept({ payload }, { call, put }) { //获取员工的部门
-      const response = yield call(queryOneParty, payload);
-      yield put({
-        type: 'saveUserDept',
-        payload: response,
-      });
-    },
+    // *fetchUserDept({ payload }, { call, put }) { //获取员工的部门
+    //   const response = yield call(queryOneParty, payload);
+    //   yield put({
+    //     type: 'saveUserDept',
+    //     payload: response,
+    //   });
+    // },
     *fetchPartyClass({ payload }, { call, put }) { //获取员工的部门
       const response = yield call(queryPartyClass, payload);
       yield put({
@@ -103,12 +103,12 @@ export default {
         userList: action.payload,
       };
     },
-    saveUserDept(state, action) {
-      return {
-        ...state,
-        userDept: action.payload,
-      };
-    },
+    // saveUserDept(state, action) {
+    //   return {
+    //     ...state,
+    //     userDept: action.payload,
+    //   };
+    // },
     savePartyClass(state, action) {
       return {
         ...state,
@@ -127,12 +127,12 @@ export default {
     //     blobExcel: action.payload,
     //   };
     // },
-    setUser(state, action) {
-      return {
-        ...state,
-        user: action.payload,
-      };
-    },
+    // setUser(state, action) {
+    //   return {
+    //     ...state,
+    //     user: action.payload,
+    //   };
+    // },
     saveDept(state, action) {
       return {
         ...state,

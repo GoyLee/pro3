@@ -50,11 +50,19 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 export default class ImplForm extends PureComponent {
   state = {
     // amountValue: 0,
-    tagTreeSelectValue: [],
+    // tagTreeSelectValue: [],
   };
-  onTagChange = (value) => {
-    this.setState({tagTreeSelectValue: value});
-  }
+  // componentDidMount() {
+  //   const { pRecord, dispatch} = this.props;
+  //   eslint-disable-next-line
+  //   alert(global.currentUser.name);
+    // if(pRecord.type === '设备')
+    //   this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
+  //   this.setState({demanderValue: this.props.currentUser.name});
+  // }
+  // onTagChange = (value) => {
+  //   this.setState({tagTreeSelectValue: value});
+  // }
   onPriceChange = (value) => {
     var q = this.props.form.getFieldValue('quantity');
     this.props.form.setFieldsValue({
@@ -99,14 +107,16 @@ export default class ImplForm extends PureComponent {
       handleModalVisible(false, true);
     });
   };
-  // componentDidMount() {
-  //   const { pRecord, dispatch} = this.props;
-  //   eslint-disable-next-line
-  //   alert(global.currentUser.name);
-    // if(pRecord.type === '设备')
-    //   this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
-  //   this.setState({demanderValue: this.props.currentUser.name});
-  // }
+
+  handleSelect = (value) => {
+    const { classList } = this.props;
+    const item = classList.find((element) => (element.username === value));
+    const p = item.price || 0
+    this.props.form.setFieldsValue({
+      price: p,
+    });
+    this.onPriceChange(p);
+  } 
 
 //render the form-----------------------------------------------------------------------------------------
   //<pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
@@ -132,7 +142,7 @@ export default class ImplForm extends PureComponent {
             rules: [{ required: true, message: 'Please input the request...' }],
           })( 
             (pRecord.type === '软件' || pRecord.type === '设备') ? 
-              <Select mode='combobox' style={{ width: '100%' }}>
+              <Select mode='combobox' onSelect={this.handleSelect} style={{ width: '100%' }}>
                 {classList.map(d => <Option key={d.username}>{d.username}</Option>)}
               </Select>
             :
@@ -157,13 +167,16 @@ export default class ImplForm extends PureComponent {
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="单价">
           {form.getFieldDecorator('price', { initialValue: 0} )(
-            <InputNumber onChange={this.onPriceChange} step={1} precision={2}  placeholder="请输入"/>
+              <InputNumber onChange={this.onPriceChange} step={1} precision={2}  placeholder="请输入"/>
           )}
+          <label>（万元）</label>
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="总价">
-          {form.getFieldDecorator('amount', { initialValue: '0.00'} )(
-            <Input disabled addonAfter='万元' placeholder="请输入" style={{ width: '48%' }}/>
+          {form.getFieldDecorator('amount')(
+            // <InputNumber disabled precision={2}/>
+            <InputNumber disabled precision={2}/>
           )}
+          <label>（万元）</label>
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签">
           {form.getFieldDecorator('tags', {
@@ -172,8 +185,8 @@ export default class ImplForm extends PureComponent {
             // <Cascader options={tagTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
             // Tags需可多选，但antd cascader还不支持多选！还需用TreeSelect。
             <TreeSelect treeCheckable showCheckedStrategy='SHOW_CHILD' allowClear multiple 
-              treeNodeFilterProp='label' value={this.state.tagTreeSelectValue} 
-              treeDefaultExpandAll treeData={tagTree} showSearch searchPlaceholder='搜索标签'
+              treeNodeFilterProp='label' 
+              treeData={tagTree} showSearch searchPlaceholder='搜索标签'
               onChange={this.onTagChange} style={{ width: '100%' }} 
             />
           )}
@@ -186,5 +199,6 @@ export default class ImplForm extends PureComponent {
       </Modal>
     ); 
   }
+  //    treeDefaultExpandAll   value={this.state.tagTreeSelectValue} 
   // , {initialValue: moment(Date.now().toString()).format('YYYY-MM-DD')}
 }

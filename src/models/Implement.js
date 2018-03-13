@@ -2,7 +2,6 @@ import { queryImplement, addImplement, updateImplement, changeReqState } from '.
 
 export default {
   namespace: 'implement',
-
   state: {
     record: {}, //从list传给form的记录缓存
     // type: '', //计划、实际
@@ -30,10 +29,10 @@ export default {
       const response = yield call(updateImplement, payload);
       if (callback) callback();
     },
-    *action({ payload, callback }, { call, put }) {
-      const response = yield call(changeReqState, payload);
-      if (callback) callback();
-    },
+    // *action({ payload, callback }, { call, put }) {
+    //   const response = yield call(changeReqState, payload);
+    //   if (callback) callback();
+    // },
   },
 
   reducers: {
