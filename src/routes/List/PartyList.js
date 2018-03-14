@@ -494,9 +494,9 @@ export default class PartyList extends PureComponent {
         render: (text, record) => {
           return (
             <Fragment>
-              <a onClick={() => this.props.onEdit(record)}>编辑</a>
+              <a onClick={() => this.onEdit(record)}>编辑</a>
               <Divider type="vertical" />
-              <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onRemove(record)}>
+              <Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}>
                 <a href="#">删除</a>
               </Popconfirm>
             </Fragment>
@@ -563,9 +563,7 @@ export default class PartyList extends PureComponent {
                   data={data}
                   onSelectRow={this.handleSelectRows}
                   onChange={this.handleStandardTableChange}
-                  onEdit={this.onEdit}
-                  onRemove={this.onRemove}
-                  />
+                />
               </div>
             </Card>
           </Content>
