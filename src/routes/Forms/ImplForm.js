@@ -90,16 +90,14 @@ export default class ImplForm extends PureComponent {
       }
       //修改数据库
       if(record._id) { //Update exist record
-        this.props.dispatch({
-          type: 'implement/update',
-          payload: fields, 
-        });    
+        dispatch({ type: 'implement/update', payload: fields, });    
       } else { //Create a new record
-        this.props.dispatch({
-          type: 'implement/add',
-          payload: fields, // {
-        });
+        dispatch({ type: 'implement/add', payload: fields, });
       }
+      // 更新对应需求的状态。注意这里仅提供了要更新的字段，其他字段自动保留！
+      dispatch({ type: 'requirement/update', payload: {_id: pRecord._id, state: '处理中'}, });
+      dispatch({ type: 'requirement/setRecord', payload: {...pRecord, state: '处理中',} }); //刷新EventForm
+
       setTimeout(function () {
         dispatch({ type: 'event/fetch', payload: {pid: pRecord._id}, });
         // message.success('更改成功:' + JSON.stringify(fields));
@@ -111,10 +109,9 @@ export default class ImplForm extends PureComponent {
   handleSelect = (value) => {
     const { classList } = this.props;
     const item = classList.find((element) => (element.username === value));
-    const p = item.price || 0
-    this.props.form.setFieldsValue({
-      price: p,
-    });
+    const p = item.price || 0;
+    this.props.form.setFieldsValue({ price: p });
+    this.props.form.setFieldsValue({ spec: item.spec || null });
     this.onPriceChange(p);
   } 
 
@@ -178,7 +175,7 @@ export default class ImplForm extends PureComponent {
           )}
           <label>（万元）</label>
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="经费渠道">
           {form.getFieldDecorator('tags', {
             rules: [{ required: false, message: 'Please input the tags...' }],
           })(

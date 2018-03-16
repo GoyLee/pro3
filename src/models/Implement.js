@@ -1,24 +1,33 @@
-import { queryImplement, addImplement, updateImplement, changeReqState } from '../services/api';
+import { queryImplement, queryOnesImplement, addImplement, updateImplement, changeReqState } from '../services/api';
 
 export default {
   namespace: 'implement',
   state: {
     record: {}, //从list传给form的记录缓存
     // type: '', //计划、实际
-    // data: {
-    //   list: [],
-    //   pagination: {},
-    // },
+    data: {
+      list: [],
+      pagination: {},
+    },
   },
 
   effects: {
     *fetchOne({ payload }, { call, put }) {
+      const response = yield call(queryOneImplement, payload);
+      yield put({
+        type: 'saveOne',
+        payload: response,
+      });
+    },
+
+    *fetch({ payload }, { call, put }) {
       const response = yield call(queryImplement, payload);
       yield put({
         type: 'save',
         payload: response,
       });
     },
+
     //add POST后的response会更新state！
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addImplement, payload);
@@ -36,13 +45,18 @@ export default {
   },
 
   reducers: {
-    save(state, action) {
+    saveOne(state, action) {
       return {
         ...state,
         record: action.payload,
       };
     },
-
+    save(state, action) {
+      return {
+        ...state,
+        data: action.payload,
+      };
+    },
     setRecord(state, action) {
       return {
         ...state,

@@ -83,15 +83,27 @@ export default {
     //add POST后的response会更新state！
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addParty, payload);
+      // yield put({
+      //   type: 'save',
+      //   payload: response,
+      // });
       if (callback) callback();
     },
     //add POST后的response会更新state！
     *update({ payload, callback }, { call, put }) {
       const response = yield call(updateParty, payload);
+      // yield put({
+      //   type: 'save',
+      //   payload: response,
+      // });
       if (callback) callback();
     },
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(removeParty, payload);
+      // yield put({
+      //   type: 'save',
+      //   payload: response,
+      // });
       if (callback) callback();
     },
   },

@@ -109,6 +109,9 @@ export const getRouterData = (app) => {
     '/list/requirement-list': {
       component: dynamicWrapper(app, ['requirement', 'event', 'implement'], () => import('../routes/List/RequirementList')),
     },
+    '/list/implement-list': {
+      component: dynamicWrapper(app, ['requirement', 'implement'], () => import('../routes/List/ImplementList')),
+    },
     '/list/basic-list': {
       component: dynamicWrapper(app, ['list'], () => import('../routes/List/BasicList')),
     },

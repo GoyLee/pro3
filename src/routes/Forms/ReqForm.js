@@ -211,7 +211,7 @@ export default class ReqForm extends PureComponent {
             <InputNumber rows={4} placeholder="请输入"/>
           )}
         </FormItem> */}
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目群">
           {form.getFieldDecorator('tags', {
             rules: [{ required: false, message: 'Please input the tags...' }],
           })(
@@ -242,7 +242,7 @@ export default class ReqForm extends PureComponent {
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="状态">
           {form.getFieldDecorator('state',{initialValue: '提出'})( 
-            <Select style={{ width: '100%' }}>
+            <Select disabled style={{ width: '100%' }}>
               <Option value="提出">提出</Option>
               <Option value="处理中">处理中</Option>
               <Option value="关闭">关闭</Option>

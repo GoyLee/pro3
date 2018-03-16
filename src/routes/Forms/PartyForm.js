@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Cascader, TreeSelect, Row, Col, Tooltip,Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
+import { Cascader, TreeSelect, Row, Col, Tooltip,Card, Form, Input, Select, 
+          Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const { TextArea } = Input;
 const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 
 //CreateForm = Form.create()((props) => {
@@ -27,6 +29,8 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
         tags: Form.createFormField({ ...props.record.tags, value: props.record.tags,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
         price: Form.createFormField({ ...props.record.price, value: props.record.price,}),
+        spec: Form.createFormField({ ...props.record.spec, value: props.record.spec,}),
+        authority: Form.createFormField({ ...props.record.authority, value: props.record.authority,}),
         status: Form.createFormField({ ...props.record.status, value: props.record.status,}),
       };
     }
@@ -118,7 +122,16 @@ export default class PartyForm extends PureComponent {
             })(
               <Input placeholder="请输入" />
             )}
-          </FormItem>
+          </FormItem>,
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="权限等级">
+          {form.getFieldDecorator('authority',{initialValue: 'visitor'})( //~defaultValue="部门"
+            <Select  style={{ width: '100%' }}>
+              <Option value="user">用户(修改权限)</Option>
+              <Option value="visitor">访客(只读权限)</Option>
+              <Option value="admin">管理员</Option>
+            </Select>
+          )}
+        </FormItem>
         ] : []} 
         {type === '部门' || type ==='员工' ?
           <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="上级部门">
@@ -144,7 +157,7 @@ export default class PartyForm extends PureComponent {
         {type === '标签' ? [
           <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="参考单价">
             {form.getFieldDecorator('price',{initialValue: 0 })( 
-              <InputNumber step={1} precision={2}  placeholder="请输入"/>
+              <InputNumber step={1} precision={2}  placeholder="请输入资产单价"/>
             )}
             <label>（万元）</label>
             <span>
@@ -153,8 +166,19 @@ export default class PartyForm extends PureComponent {
                   <Icon type="question-circle-o" style={{ fontSize: 18, color: '#08c' }} />
                 </Tooltip>
             </span>
-          </FormItem>
-        ]: '' }
+          </FormItem>,
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="规格">
+          {form.getFieldDecorator('spec',{initialValue: 0 })( 
+            <TextArea rows={3} style={{ width: '90%' }} placeholder="请输入资产规格"/>
+          )}
+          <span>
+              &nbsp;
+              <Tooltip title="本标签作为“资产分类”时请输入，如：台式计算机、MS-Office等的规格">
+                <Icon type="question-circle-o" style={{ fontSize: 18, color: '#08c' }} />
+              </Tooltip>
+          </span>
+        </FormItem>
+      ]: '' }
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="状态">
           {form.getFieldDecorator('status',{initialValue: '正常'})( //~defaultValue="部门"
             <Select  style={{ width: '100%' }}>

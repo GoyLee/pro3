@@ -1,6 +1,8 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
+// import RenderAuthorized from 'ant-design-pro/lib/Authorized';
+import RenderAuthorized from '../../components/Authorized';
 import {Tabs, Tree, Layout, Row, Col, Card, Form, Alert, Badge, Divider, Popconfirm, 
     Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message } from 'antd';
 import StandardTable from '../../components/StandardTable';
@@ -19,8 +21,9 @@ const { TabPane } = Tabs;
 //const TreeNode2 = TreeSelect.TreeNode;
 const TreeNode = Tree.TreeNode;
 
-@connect(({ party, loading, }) => ({
+@connect(({ party, user, loading, }) => ({
   party,
+  authority: user.currentUser.authority,
   deptTree: party.dept.list,
   tagTree: party.tag.list,
   loading: loading.models.party,
@@ -416,7 +419,7 @@ export default class PartyList extends PureComponent {
 
   
   render() {
-    const { party: { data, blobExcel }, loading } = this.props;
+    const { party: { data, blobExcel }, loading , authority} = this.props;
     const { deptTree, tagTree } = this.props;
     const { selectedRows, modalVisible } = this.state;
 
@@ -426,13 +429,15 @@ export default class PartyList extends PureComponent {
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
+    //权限控制！
+    const Authorized = RenderAuthorized(authority);
 
     const status = ['正常', '临时', '终止', '暂停'];
     const statusMap = {'暂停':'default', '临时':'processing', '正常':'success', '终止':'error'};  
 
     const columns = [
       {
-        title: '工号',
+        title: '编号',
         dataIndex: 'code',
       },
       {
@@ -493,13 +498,15 @@ export default class PartyList extends PureComponent {
         //record中是list中的一条记录
         render: (text, record) => {
           return (
-            <Fragment>
-              <a onClick={() => this.onEdit(record)}>编辑</a>
-              <Divider type="vertical" />
-              <Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}>
-                <a href="#">删除</a>
-              </Popconfirm>
-            </Fragment>
+            // <Fragment>
+              <Authorized authority={['user', 'admin']}>
+                <a onClick={() => this.onEdit(record)}>编辑</a>
+                <Divider type="vertical" />
+                <Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}>
+                  <a href="#">删除</a>
+                </Popconfirm>
+              </Authorized>             
+            // </Fragment>
             //  <a onClick={() => this.props.onRemove(record)}>删除</a>
             //<a onClick={() => message.success(record._id)}>编辑</a>
             //<a onClick={() => this.save(record.key)}>Save</a>    

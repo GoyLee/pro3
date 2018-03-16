@@ -15,6 +15,9 @@ export async function queryActivities() {
 
 //Implement=============================================================================
 export async function queryImplement(params) {
+  return request(`/api/implement?${stringify(params)}`);
+}
+export async function queryOneImplement(params) {
   return request(`/api/oneimplement?${stringify(params)}`);
 }
 export async function addImplement(params) {

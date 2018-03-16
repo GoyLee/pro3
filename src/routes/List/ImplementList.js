@@ -4,8 +4,6 @@ import moment from 'moment';
 import { Tree, Layout, Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu,
   InputNumber, DatePicker, Modal, Badge, Divider, Popconfirm,message } from 'antd';
 import StandardTable from '../../components/StandardTable';
-import ReqForm from '../Forms/ReqForm';
-import EventForm from '../Forms/EventForm';
 import ImplForm from '../Forms/ImplForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
@@ -22,18 +20,18 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 //const TreeNode2 = TreeSelect.TreeNode;
 //const TreeNode = Tree.TreeNode;
 //initialize the List--------------------------------------------------------------------------------
-@connect(({ requirement, party, loading, user }) => ({
-  requirement,
+@connect(({ implement, loading, party, user }) => ({
+  implement,
   userList: party.userList,
-  loading: loading.models.requirement,
+  loading: loading.models.implement,
   currentUser: user.currentUser,
 }))
 @Form.create()
-export default class RequirementList extends PureComponent {
+export default class ImplList extends PureComponent {
   state = {
     modalVisible: false, //是否显示编辑记录的对话框
-    eventModalVisible: false, //是否显示事件列表的对话框
-    implModalVisible: false, //是否显示事件列表的对话框
+    // eventModalVisible: false, //是否显示事件列表的对话框
+    // implModalVisible: false, //是否显示实现列表的对话框
 
     expandForm: false,
     collapsed: false,
@@ -44,9 +42,9 @@ export default class RequirementList extends PureComponent {
   
   componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({ type: 'requirement/fetch',});
+    dispatch({ type: 'implement/fetch',});
     dispatch({ type: 'party/fetchTagTree', });
-    dispatch({ type: 'party/fetchUserList', payload: {}, }); //username: name
+    // dispatch({ type: 'party/fetchUserList', payload: {}, }); //username: name
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -75,7 +73,7 @@ export default class RequirementList extends PureComponent {
     this.setState({ queryParams: params})
     //message.success(JSON.stringify(params));
     dispatch({
-      type: 'requirement/fetch',
+      type: 'implement/fetch',
       payload: params,
     });
   }
@@ -95,7 +93,7 @@ export default class RequirementList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'requirement/remove',
+          type: 'implement/remove',
           payload: {
             id: selectedRows.map(row => row._id).join(','),
           },
@@ -119,16 +117,14 @@ export default class RequirementList extends PureComponent {
       queryParams: {},
     });
     dispatch({
-      type: 'requirement/fetch',
+      type: 'implement/fetch',
       payload: {},
     });
   }
 
   handleSearch = (e) => {
     e.preventDefault();
-
     const { dispatch, form } = this.props;
-
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
@@ -146,7 +142,7 @@ export default class RequirementList extends PureComponent {
       }
       this.setState({ queryParams: params});
       dispatch({
-        type: 'requirement/fetch',
+        type: 'implement/fetch',
         payload: params, //不能用queryParams, 因其是异步更新，现在还是旧值！
       });
     });
@@ -158,20 +154,18 @@ export default class RequirementList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="需求">
-              {getFieldDecorator('reqname')(
+            <FormItem label="计划">
+              {getFieldDecorator('name')(
                 <Input placeholder="请输入" />
               )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="状态">
-              {getFieldDecorator('status')(
+            <FormItem label="类别">
+              {getFieldDecorator('type')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="正常">正常</Option>
-                  <Option value="离职">离职</Option>
-                  <Option value="兼职">兼职</Option>
-                  <Option value="停职">停职</Option>
+                  <Option value="计划">正常</Option>
+                  <Option value="实际">离职</Option>
                 </Select>
               )}
             </FormItem>
@@ -196,15 +190,15 @@ export default class RequirementList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="需求">
-              {getFieldDecorator('reqname')(
+            <FormItem label="">
+              {getFieldDecorator('name')(
                 <Input placeholder="请输入" />
               )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="状态">
-              {getFieldDecorator('status')(
+            <FormItem label="类别">
+              {getFieldDecorator('type')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="0">关闭</Option>
                   <Option value="1">运行中</Option>
@@ -278,7 +272,7 @@ export default class RequirementList extends PureComponent {
     });
     if(isRecordUpdated) {
       this.props.dispatch({
-        type: 'requirement/fetch',
+        type: 'implement/fetch',
         payload: this.state.queryParams, 
       });
     }
@@ -297,7 +291,7 @@ export default class RequirementList extends PureComponent {
     
     //初始化“需求”记录, 如注释掉，则下次新建时会自动带着上次的信息！
     const record = {demander: name, department: dept, type:'应用', state:'提出'}; //设定默认值
-    this.props.dispatch({ type: 'requirement/setRecord', payload: record, });
+    this.props.dispatch({ type: 'implement/setRecord', payload: record, });
     
     this.handleModalVisible(true);
   }
@@ -305,53 +299,28 @@ export default class RequirementList extends PureComponent {
     // this.props.dispatch({ type: 'party/fetchUserList', payload: {username: name}, });    
     // this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
     //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid[1]}, });
-    // this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
-    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
+    // this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, }); 
+    const r = {...record, tags: record.tags.map(o => o._id)};
+    this.props.dispatch({ type: 'implement/setRecord', payload: r, }); //保存到store
     //this.setState({recordNew: false});
     this.handleModalVisible(true);
   }
   onRemove = (record) => { //删除记录
     //message.success(JSON.stringify(record));
     this.props.dispatch({
-      type: 'requirement/remove',
+      type: 'implement/remove',
       payload: {id: record._id}, // {
     });
     this.props.dispatch({
-      type: 'requirement/fetch',
+      type: 'implement/fetch',
       payload: this.state.queryParams, 
     });
   }
-//for requirements tracking, coupled with EventForm.js & ImplForm.js-------------------------------------------------
-  handleImplModalVisible = (flag, isRecordUpdated) => {
-    this.setState({
-      implModalVisible: flag,
-    });
-    // if(isRecordUpdated) {
-      this.props.dispatch({ type: 'requirement/fetch', payload: this.state.queryParams, });
-    // }
-  }  
-  handleEventModalVisible = (flag, isRecordUpdated) => {
-    this.setState({
-      eventModalVisible: flag,
-    });
-    // if(isRecordUpdated) {
-      this.props.dispatch({ type: 'requirement/fetch', payload: this.state.queryParams, });
-    // }
-  }
-  
-  onTrack = (record) => { //跟踪事件
-    this.props.dispatch({ type: 'event/fetch', payload: {pid: record._id}, });
-    //this.props.dispatch({ type: 'party/setUser', payload: record.demander, }); 
-    //this.props.dispatch({ type: 'party/saveUserDept', payload: {username: record.department}, });   
-    //this.props.dispatch({ type: 'party/fetchUserDept', payload: {id:record.pid[1]}, });
-    this.props.dispatch({ type: 'requirement/setRecord', payload: record, }); //保存到store
-    //this.setState({recordNew: false});
-    this.handleEventModalVisible(true);
-  }
+
 
 // Render the List-------------------------------------------------------------------------------------
   render() {
-    const { requirement: { data }, loading } = this.props;
+    const { implement: { data }, loading } = this.props;
     const { selectedRows, modalVisible, eventModalVisible, implModalVisible } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
@@ -370,28 +339,45 @@ export default class RequirementList extends PureComponent {
         render: (text, record, index) => <span> {index+1} </span>,
       },
       {
-        title: '部门',
-        dataIndex: 'department',
-      },
-      {
         title: '提出人',
-        dataIndex: 'demander',
+        dataIndex: 'user',
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
       },
       {
         title: '需求',
-        dataIndex: 'reqname',
-        width: 500,
+        dataIndex: 'name',
+        width: 100,
       },
-      // {
-      //   title: '数量',
-      //   dataIndex: 'quantity',
-      //   // sorter: true,
-      //   //render: val => `${val} 万`,
-      // },
       {
-        title: '归属项目群',
-        dataIndex: 'tagRecords',
+        title: '规格',
+        dataIndex: 'spec',
+        width: 400,
+      },
+      {
+        title: '数量',
+        dataIndex: 'quantity',
+        align: 'right',
+        sorter: true,
+        // render: val => `${val} （万元）`,
+      },
+      {
+        title: '单价（万元）',
+        dataIndex: 'price',
+        align: 'right',
+        sorter: true,
+        // render: val => `${val} （万元）`,
+      },
+      {
+        title: '金额（万元）',
+        dataIndex: 'amount',
+        align: 'right',
+        sorter: true,
+        render: val => `${val.toFixed(2)}`,
+      },
+      {
+        title: '经费渠道',
+        dataIndex: 'tags',
+        // dataIndex: 'tagRecords',
         render(val) {
           // message.success(JSON.stringify(val));
           return  <span>{val.map(o => o.username).join('、')}</span>;
@@ -407,42 +393,48 @@ export default class RequirementList extends PureComponent {
       //  title: '归属',
       //  dataIndex: 'pid',
       //},
-      {
-        title: '状态',
-        dataIndex: 'state',
+      // {
+      //   title: '状态',
+      //   dataIndex: 'state',
         
-        filters: [
-          {
-            text: status[0],
-            value: status[0],
-          },
-          {
-            text: status[1],
-            value: status[1],
-          },
-          {
-            text: status[2],
-            value: status[2],
-          },
-          {
-            text: status[3],
-            value: status[3],
-          },
-          {
-            text: status[4],
-            value: status[4],
-          },
-        ],
-        //render: val => <span>{val}</span>,
-        render(val) {
-          return <Badge status={statusMap[val]} text={val} />;
-        },
+      //   filters: [
+      //     {
+      //       text: status[0],
+      //       value: status[0],
+      //     },
+      //     {
+      //       text: status[1],
+      //       value: status[1],
+      //     },
+      //     {
+      //       text: status[2],
+      //       value: status[2],
+      //     },
+      //     {
+      //       text: status[3],
+      //       value: status[3],
+      //     },
+      //     {
+      //       text: status[4],
+      //       value: status[4],
+      //     },
+      //   ],
+      //   //render: val => <span>{val}</span>,
+      //   render(val) {
+      //     return <Badge status={statusMap[val]} text={val} />;
+      //   },
+      // },
+      {
+        title: '计划日期',
+        dataIndex: 'date',
+        sorter: true,
+        render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
       },
       {
         title: '更新日期',
         dataIndex: 'updatedAt',
         sorter: true,
-        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
       },
       {
         title: '操作',
@@ -451,9 +443,12 @@ export default class RequirementList extends PureComponent {
         render: (text, record) => {
           const menu = (
             <Menu>
-              <Menu.Item>
-                <a onClick={() => this.onEdit(record)}>编辑</a>
-              </Menu.Item>
+              <Menu.Item> <a onClick={() => this.onTrack(record)}>启动</a></Menu.Item>
+              <Menu.Item> <a onClick={() => this.onTrack(record)}>采购</a></Menu.Item>
+              <Menu.Item> <a onClick={() => this.onTrack(record)}>到货</a></Menu.Item>
+              <Menu.Item> <a onClick={() => this.onTrack(record)}>完成</a></Menu.Item>
+              <Menu.Item> <a onClick={() => this.onTrack(record)}>取消</a></Menu.Item>
+              <Menu.Item> <a onClick={() => this.onTrack(record)}>暂停</a></Menu.Item>
               <Menu.Item>
                 <Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}>
                   <a href="#">删除</a>
@@ -463,23 +458,21 @@ export default class RequirementList extends PureComponent {
           );
           return (
             <Fragment>
-                <a onClick={() => this.onTrack(record)}>跟踪</a>
+            {/* <Authorized authority={['user', 'admin']}> */}
+              <a onClick={() => this.onEdit(record)}>编辑</a>
               <Divider type="vertical" />
               <Dropdown overlay={menu}>
                 <a href="#">
                   <Icon type="ellipsis" />
                 </a>
               </Dropdown>
+              {/* <a onClick={() => this.onEdit(record)}>编辑</a>
+              <Divider type="vertical" />
+              <Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}>
+                <a href="#">删除</a>
+              </Popconfirm> */}
+            {/* </Authorized>              */}
             </Fragment>
-            //  <a onClick={() => this.props.onRemove(record)}>删除</a>
-            //<a onClick={() => message.success(record._id)}>编辑</a>
-            //<a onClick={() => this.save(record.key)}>Save</a>    
-            //this.state.dataSource.length > 1 ?
-            //(
-              //<Popconfirm title="Sure to delete?" onConfirm={() => this.onDelete(record.key)}>
-              //  <a href="#">Delete</a>
-              //</Popconfirm>
-            //) : null
           );
         },
       },
@@ -497,7 +490,7 @@ export default class RequirementList extends PureComponent {
     ];
     
     return (
-      <PageHeaderLayout title="信息化需求管理">
+      <PageHeaderLayout title="信息化需求实现计划管理">
         <Card bordered={false}>
               <div className={styles.tableList}>
                 <div className={styles.tableListForm}>
@@ -530,18 +523,9 @@ export default class RequirementList extends PureComponent {
                   />
               </div>
         </Card>
-        <ReqForm
+        <ImplForm
             handleModalVisible={this.handleModalVisible}
             modalVisible={modalVisible}
-        />
-        <EventForm
-            handleModalVisible={this.handleEventModalVisible}
-            handleImplModalVisible={this.handleImplModalVisible}
-            modalVisible={eventModalVisible}
-        />
-        <ImplForm
-            handleModalVisible={this.handleImplModalVisible}
-            modalVisible={implModalVisible}
         />
       </PageHeaderLayout>
     );

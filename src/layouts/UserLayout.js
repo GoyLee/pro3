@@ -21,15 +21,15 @@ const links = [{
   href: '',
 }];
 
-const copyright = <div>Copyright <Icon type="copyright" /> 2018 蚂蚁金服体验技术部出品</div>;
+const copyright = <div>Copyright <Icon type="copyright" /> 2018 中国商飞试飞中心科信部</div>;
 
 class UserLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
-    let title = 'Ant Design Pro';
+    let title = '信息化需求跟踪';
     if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - Ant Design Pro`;
+      title = `${routerData[pathname].name} - 信息化需求跟踪`;
     }
     return title;
   }
@@ -46,7 +46,7 @@ class UserLayout extends React.PureComponent {
                   <span className={styles.title}>Ant Design</span>
                 </Link>
               </div>
-              <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
+              <div className={styles.desc}>试飞中心信息化需求管理平台</div>
             </div>
             <Switch>
               {getRoutes(match.path, routerData).map(item =>

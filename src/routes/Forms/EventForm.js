@@ -48,9 +48,11 @@ export default class EventForm extends PureComponent {
       //Create a new record
       dispatch({ type: 'event/add', payload: fields, });
       // message.success('添加成功:' + JSON.stringify(fields));
+      if (action != '跟踪')
+        dispatch({ type: 'requirement/update', payload: {_id: pRecord._id, state: action}, });
       // 刷新Form
       dispatch({ type: 'event/fetch', payload: {pid: pRecord._id}, });
-      if (action != '日常') {
+      if (action != '跟踪') { //刷新按钮组
         const rec2 = {...pRecord, state: action,}
         dispatch({ type: 'requirement/setRecord', payload: rec2 }); 
       }
@@ -60,7 +62,7 @@ export default class EventForm extends PureComponent {
   handleCreateImpl = (type) => {
     const {pRecord, dispatch} = this.props;
     //初始化缓存
-    if(type==='计划') {
+    // if(type==='计划') {
       const rec = {
         budgetyear: '2018',
         type: type, 
@@ -71,15 +73,16 @@ export default class EventForm extends PureComponent {
         date: moment(Date.now()).format('YYYY-MM-DD'), //'2018-12-31'
       }
       dispatch({ type: 'implement/setRecord', payload: rec }); 
-    } else { //新实际项，要准备record。//获取当前需求的最近的1条计划项，并告诉后端要做必要的设置
-      dispatch({ type: 'implement/fetchOne', payload: {type: '计划', pid: pRecord._id, newActual:1 } }); 
-    }
+    // } else { //新实际项，要准备record。//获取当前需求的最近的1条计划项，并告诉后端要做必要的设置
+    //   dispatch({ type: 'implement/fetchOne', payload: {type: '计划', pid: pRecord._id, newActual:1 } }); 
+    // }
     if(pRecord.type === '设备')
       dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
     if(pRecord.type === '软件')
       dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
     this.props.handleImplModalVisible(true, false);
   };
+
   handleUpdateImpl = (record) =>{
     this.props.dispatch({ type: 'implement/fetchOne', payload: {id: record.sid}, });
     if(this.props.pRecord.type === '设备')
@@ -162,10 +165,10 @@ export default class EventForm extends PureComponent {
       '取消': <Button key="impl" onClick={() => this.onCreateEvent('取消')}>取消需求</Button>,
     };
     return (
-      <Modal title={'需求跟踪事件表 | 需求：' + pRecord.reqname + ' [ ' + pRecord.state + ' ]'} width="50%" 
+      <Modal title={'需求事件表 | 需求：' + pRecord.reqname + ' [ ' + pRecord.state + ' ]'} width="50%" 
         visible={modalVisible} onCancel={() => handleModalVisible(false, false) }
         footer={[
-          <Button key="submit" onClick={() => this.onCreateEvent('日常')}>新增日常事件</Button>,
+          <Button key="submit" onClick={() => this.onCreateEvent('跟踪')}>新增日常事件</Button>,
           <Divider type="vertical" />,
           state_actions[pRecord.state || '提出'].map(a => action_Button[a]), //state->actions->Buttons
           <Divider type="vertical" />,
