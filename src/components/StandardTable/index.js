@@ -20,7 +20,7 @@ class StandardTable extends PureComponent {
 
   handleRowSelectChange = (selectedRowKeys, selectedRows) => {
     const totalNumber = selectedRows.reduce((sum, val) => {
-      return sum + 1; //parseFloat(val.amount, 10); //amount应改成需要汇总的字段名
+      return sum + ( val.amount ? parseFloat(val.amount, 10) : 0 ); //amount应改成需要汇总的字段名
     }, 0);
 
     if (this.props.onSelectRow) {
@@ -70,7 +70,7 @@ class StandardTable extends PureComponent {
               <div>
                 总数 <span style={{ fontWeight: 600 }}>{pagination.total}</span> 个&nbsp;&nbsp;
                 已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
-                已选数 <span style={{ fontWeight: 600 }}>{totalNumber}</span> 个
+                已选额 <span style={{ fontWeight: 600 }}>{totalNumber.toFixed(2)}</span> 
                 <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>清空</a>
               </div>
             )}

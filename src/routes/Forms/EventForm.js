@@ -63,16 +63,17 @@ export default class EventForm extends PureComponent {
     const {pRecord, dispatch} = this.props;
     //初始化缓存
     // if(type==='计划') {
-      const rec = {
-        budgetyear: '2018',
-        type: type, 
-        pid: pRecord._id,
-        quantity: 1,
-        price: 1.00,
-        amount: 1.00,
-        date: moment(Date.now()).format('YYYY-MM-DD'), //'2018-12-31'
-      }
-      dispatch({ type: 'implement/setRecord', payload: rec }); 
+    const rec = {
+      budgetyear: '2018',
+      type: type, 
+      pid: pRecord._id,
+      quantity: 1,
+      price: 1.00,
+      amount: 1.00,
+      state:'计划',
+      date: moment(Date.now()).format('YYYY-MM-DD'), //'2018-12-31'
+    }
+    dispatch({ type: 'implement/setRecord', payload: rec }); 
     // } else { //新实际项，要准备record。//获取当前需求的最近的1条计划项，并告诉后端要做必要的设置
     //   dispatch({ type: 'implement/fetchOne', payload: {type: '计划', pid: pRecord._id, newActual:1 } }); 
     // }
@@ -152,14 +153,14 @@ export default class EventForm extends PureComponent {
     //PetriNet, 定义了：需求的每个状态下可选的落实行动
     const state_actions = {
       '提出': ['计划','取消','挂起'],
-      '处理中': ['计划','实际','挂起','关闭','取消'],
-      '挂起': ['计划','实际','取消'],
+      '处理中': ['计划','挂起','关闭','取消'],
+      '挂起': ['计划','取消'],
       '关闭': [],
       '取消': [],
     };
     const action_Button = {
       '计划': <Button key="impl" type="primary" onClick={() => this.handleCreateImpl('计划')}>新增计划项</Button>,
-      '实际': <Button key="impl" onClick={() => this.handleCreateImpl('实际')}>新增实际项</Button>,
+      // '实际': <Button key="impl" onClick={() => this.handleCreateImpl('实际')}>新增实际项</Button>,
       '关闭': <Button key="impl" onClick={() => this.onCreateEvent('关闭')}>关闭需求</Button>,
       '挂起': <Button key="impl" onClick={() => this.onCreateEvent('挂起')}>挂起需求</Button>,
       '取消': <Button key="impl" onClick={() => this.onCreateEvent('取消')}>取消需求</Button>,

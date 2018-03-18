@@ -166,12 +166,13 @@ export default class RequirementList extends PureComponent {
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="状态">
-              {getFieldDecorator('status')(
+              {getFieldDecorator('state')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="正常">正常</Option>
-                  <Option value="离职">离职</Option>
-                  <Option value="兼职">兼职</Option>
-                  <Option value="停职">停职</Option>
+                  <Option value="提出">提出</Option>
+                  <Option value="处理中">处理中</Option>
+                  <Option value="挂起">挂起</Option>
+                  <Option value="取消">取消</Option>
+                  <Option value="关闭">关闭</Option>
                 </Select>
               )}
             </FormItem>
@@ -180,9 +181,9 @@ export default class RequirementList extends PureComponent {
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">查询</Button>
               <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>重置</Button>
-              <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
+              {/* <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
                 展开 <Icon type="down" />
-              </a>
+              </a> */}
             </span>
           </Col>
         </Row>

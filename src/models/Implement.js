@@ -4,6 +4,7 @@ export default {
   namespace: 'implement',
   state: {
     record: {}, //从list传给form的记录缓存
+    reqList: [], //某一个实现所支持的需求列表
     // type: '', //计划、实际
     data: {
       list: [],
@@ -61,6 +62,12 @@ export default {
       return {
         ...state,
         record: action.payload,
+      };
+    },
+    setReqList(state, action) {
+      return {
+        ...state,
+        reqList: action.payload,
       };
     },
     // setType(state, action) {

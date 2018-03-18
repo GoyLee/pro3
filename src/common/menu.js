@@ -35,12 +35,12 @@ const menuData = [
 // },
 {
   name: '维度管理',
-  icon: 'table',
+  icon: 'user',
   path: 'list/party-list',
 }, 
 {
-  name: '需求跟踪',
-  icon: 'check-circle-o',
+  name: '需求列表',
+  icon: 'table', //'check-circle-o',
   path: 'list/requirement-list',
 },
 {
