@@ -8,7 +8,6 @@ import ImplForm from '../Forms/ImplForm';
 // import 'moment/locale/zh-cn';
 // moment.locale('zh-cn');
 
-
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
@@ -59,39 +58,40 @@ export default class EventForm extends PureComponent {
     });
   };
 
-  handleCreateImpl = (type) => {
-    const {pRecord, dispatch} = this.props;
-    //初始化缓存
-    // if(type==='计划') {
-    const rec = {
-      budgetyear: '2018',
-      type: type, 
-      pid: pRecord._id,
-      quantity: 1,
-      price: 1.00,
-      amount: 1.00,
-      state:'计划',
-      date: moment(Date.now()).format('YYYY-MM-DD'), //'2018-12-31'
-    }
-    dispatch({ type: 'implement/setRecord', payload: rec }); 
-    // } else { //新实际项，要准备record。//获取当前需求的最近的1条计划项，并告诉后端要做必要的设置
-    //   dispatch({ type: 'implement/fetchOne', payload: {type: '计划', pid: pRecord._id, newActual:1 } }); 
-    // }
-    if(pRecord.type === '设备')
-      dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
-    if(pRecord.type === '软件')
-      dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
-    this.props.handleImplModalVisible(true, false);
-  };
+  // handleCreateImpl = (action) => {
+  //   const {pRecord, dispatch} = this.props;
+  //   //初始化缓存
+  //   // if(type==='计划') {
+  //   const rec = {
+  //     budgetyear: moment(Date.now()).format('YYYY'),
+  //     type: pRecord.type, 
+  //     pid: pRecord._id,
+  //     quantity: 1,
+  //     price: 1.00,
+  //     amount: 1.00,
+  //     state:'计划',
+  //     action: action,
+  //     date: moment(Date.now()).format('YYYY-MM-DD'), //'2018-12-31'
+  //   }
+  //   dispatch({ type: 'implement/setRecord', payload: rec }); 
+  //   // } else { //新实际项，要准备record。//获取当前需求的最近的1条计划项，并告诉后端要做必要的设置
+  //   //   dispatch({ type: 'implement/fetchOne', payload: {type: '计划', pid: pRecord._id, newActual:1 } }); 
+  //   // }
+  //   if(pRecord.type === '设备')
+  //     dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
+  //   if(pRecord.type === '软件')
+  //     dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
+  //   this.props.handleImplModalVisible(true, false);
+  // };
 
-  handleUpdateImpl = (record) =>{
-    this.props.dispatch({ type: 'implement/fetchOne', payload: {id: record.sid}, });
-    if(this.props.pRecord.type === '设备')
-      this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
-    if(this.props.pRecord.type === '软件')
-      this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
-    this.props.handleImplModalVisible(true, true);
-  };
+  // handleUpdateImpl = (record) =>{
+  //   this.props.dispatch({ type: 'implement/fetchOne', payload: {id: record.sid}, });
+  //   if(this.props.pRecord.type === '设备')
+  //     this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
+  //   if(this.props.pRecord.type === '软件')
+  //     this.props.dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
+  //   this.props.handleImplModalVisible(true, true);
+  // };
 
   render(){
     const { list, loading, pRecord, user, modalVisible, form, handleModalVisible } = this.props; //deptTree,
@@ -131,35 +131,35 @@ export default class EventForm extends PureComponent {
         width: 48,
         render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
       },
-      {
-        title: '操作',
-        width: 15,
-        //dataIndex: 'operation',
-        //record中是list中的一条记录
-        render: (text, record) => {
-          return (
-            record.sid && (pRecord.state==='处理中' || pRecord.state ==='挂起') ?
-              <Fragment>
-                 <a onClick={() => this.handleUpdateImpl(record)}>更新</a>
-              </Fragment>
-            :
-              <Fragment>
-                <a >----</a>
-              </Fragment>
-          );
-        },
-      },
+      // {
+      //   title: '操作',
+      //   width: 15,
+      //   //dataIndex: 'operation',
+      //   //record中是list中的一条记录
+      //   render: (text, record) => {
+      //     return (
+      //       record.sid && (pRecord.state==='处理中' || pRecord.state ==='挂起') ?
+      //         <Fragment>
+      //            <a onClick={() => this.handleUpdateImpl(record)}>更新</a>
+      //         </Fragment>
+      //       :
+      //         <Fragment>
+      //           <a >----</a>
+      //         </Fragment>
+      //     );
+      //   },
+      // },
     ];
     //PetriNet, 定义了：需求的每个状态下可选的落实行动
     const state_actions = {
-      '提出': ['计划','取消','挂起'],
-      '处理中': ['计划','挂起','关闭','取消'],
-      '挂起': ['计划','取消'],
+      '提出': ['取消','挂起'], //还有 '计划'，但'计划'的计划项本身又是个子PetriNet, 在Implement中处理
+      '处理中': ['挂起','关闭','取消'], //还有 '计划'
+      '挂起': ['取消'], //还有 '计划'
       '关闭': [],
       '取消': [],
     };
     const action_Button = {
-      '计划': <Button key="impl" type="primary" onClick={() => this.handleCreateImpl('计划')}>新增计划项</Button>,
+      // '计划': <Button key="impl" type="primary" onClick={() => this.handleCreateImpl('计划')}>新增计划项</Button>,
       // '实际': <Button key="impl" onClick={() => this.handleCreateImpl('实际')}>新增实际项</Button>,
       '关闭': <Button key="impl" onClick={() => this.onCreateEvent('关闭')}>关闭需求</Button>,
       '挂起': <Button key="impl" onClick={() => this.onCreateEvent('挂起')}>挂起需求</Button>,

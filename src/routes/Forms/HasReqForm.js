@@ -32,6 +32,8 @@ export default class SelectReqForm extends PureComponent {
   //   selectedRows: [],
   //   queryParams: {}, //search conditions from search forms and requirementTable
   // }
+  // componentDidMount() {
+  // }
 
   okHandle = () => {
     const { record, list, user, dispatch } = this.props; //deptTree,
@@ -39,15 +41,14 @@ export default class SelectReqForm extends PureComponent {
     dispatch({ type: 'implement/update', payload: r});    
     dispatch({ type: 'implement/fetch'});
       // message.success('更改成功:' + JSON.stringify(fields));
+    // 更新对应需求的状态。注意这里仅提供了要更新的字段，其他字段自动保留！
+    // for(var i in r.pid) {
+    r.pid.map(i => 
+      dispatch({ type: 'requirement/update', payload: {_id: i, state: '处理中', updatedAt: Date.now()}, })
+    );
+    
     this.props.handleModalVisible(false, true);
   };
-
-  // componentDidMount() {
-  //   eslint-disable-next-line
-  //   alert(global.currentUser.name);
-  //   this.props.dispatch({ type: 'party/fetchUserDept', payload: {}, });
-  //   this.setState({demanderValue: this.props.currentUser.name});
-  // }
   handleRemove = (record) => {
     const { list, dispatch } = this.props; //deptTree,
     const newlist = list.filter(item => item._id != record._id);
@@ -58,7 +59,7 @@ export default class SelectReqForm extends PureComponent {
   };
 //render the form-----------------------------------------------------------------------------------------
   render(){
-    const { list, modalVisible, handleModalVisible } = this.props; //deptTree,
+    const { list, record, modalVisible, handleModalVisible } = this.props; //deptTree,
     // const { selectedRows } = this.state;
     const columns = [
       // { //显示行号
@@ -119,7 +120,7 @@ export default class SelectReqForm extends PureComponent {
 
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
-      <Modal title="选择需求" visible={modalVisible} width="50%" 
+      <Modal title={"选择需求 | 标的：" + record.name} visible={modalVisible} width="50%" 
           onCancel={() => handleModalVisible(false, false)}
           footer={[
             <Button key="submit"  type="primary" onClick={() => this.onAddReq()}>添加需求</Button>,

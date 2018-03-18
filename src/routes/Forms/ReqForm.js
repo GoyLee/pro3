@@ -217,7 +217,7 @@ export default class ReqForm extends PureComponent {
           })(
             // <Cascader options={tagTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
             // Tags需可多选，但antd cascader还不支持多选！还需用TreeSelect。
-            <TreeSelect treeCheckable showCheckedStrategy='SHOW_CHILD' allowClear multiple 
+            <TreeSelect treeCheckable showCheckedStrategy='SHOW_PARENT' allowClear multiple 
               treeNodeFilterProp='label' treeData={tagTree} showSearch searchPlaceholder='搜索标签'
               onChange={this.onTagChange} style={{ width: '100%' }} 
             />

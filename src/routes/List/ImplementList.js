@@ -46,7 +46,7 @@ export default class ImplList extends PureComponent {
     const { dispatch } = this.props;
     dispatch({ type: 'implement/fetch',});
     dispatch({ type: 'party/fetchTagTree', });
-    dispatch({ type: 'requirement/fetch', payload: {} });
+
 
     // dispatch({ type: 'party/fetchUserList', payload: {}, }); //username: name
   }
@@ -287,7 +287,7 @@ export default class ImplList extends PureComponent {
       expandForm: !this.state.expandForm,
     });
   }
-//for record updating, coupled with ReqForm.js---------------------------------------------------------
+//for record updating, coupled with ImplForm/HasReqForm/SelectReqForm.js---------------------------------------------------------
   handleModalVisible = (flag, isRecordUpdated) => {
     this.setState({
       modalVisible: flag,
@@ -323,39 +323,38 @@ export default class ImplList extends PureComponent {
     });
     dispatch({ type: 'implement/setReqList', payload: list}); //去重，并保存到store //[...new Set(list)]
   }
-  onCreate = () => { //新增记录
+  onCreate = (type) => { //新增记录
     const {dispatch} = this.props;
     //初始化“需求”记录, 如注释掉，则下次新建时会自动带着上次的信息！
     const rec = {
-      budgetyear: '2018',
-      // type: type, 
+      // budgetyear: '2018',
+      budgetyear: moment(Date.now()).format('YYYY'),
+      type: type, 
+      pid: [],
+      action: '计划', //对需求的行动，将导致需求的状态为‘处理中’。Rule：仅'提出'、'处理中'、'挂起'三种state中的需求可以被‘计划’~实现。
+      state: '计划', //实现本身的状态，初始态是‘计划’。
       quantity: 1,
       price: 1.00,
       amount: 1.00,
-      state:'计划',
       date: moment(Date.now()).format('YYYY-MM-DD'), //'2018-12-31'
     }
     dispatch({ type: 'implement/setRecord', payload: rec }); 
-    // } else { //新实际项，要准备record。//获取当前需求的最近的1条计划项，并告诉后端要做必要的设置
-    //   dispatch({ type: 'implement/fetchOne', payload: {type: '计划', pid: pRecord._id, newActual:1 } }); 
-    // }
-    // if(type === '设备')
-    //   dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
-    // if(type === '软件')
-    //   dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
-
+    if(type === '设备')
+      dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
+    if(type === '软件')
+      dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
+    // dispatch({ type: 'requirement/fetch', payload: {state: '提出,处理中,挂起', type: type} });
     this.handleModalVisible(true);
   }
   onEdit = (record) => { //修改记录
     const {dispatch} = this.props;
     const r = {...record, tags: record.tags.map(o => o._id)};
-    // dispatch({ type: 'implement/setRecord', payload: r, }); //保存到store
-    // if(r.type === '设备')
-    //   dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
-    // if(r.type === '软件')
-    //   dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
+    dispatch({ type: 'implement/setRecord', payload: r, }); //保存到store
+    if(r.type === '设备')
+      dispatch({ type: 'party/fetchPartyClass', payload: {class: '设备'}, });
+    if(r.type === '软件')
+      dispatch({ type: 'party/fetchPartyClass', payload: {class: '软件'}, });
 
-    //this.setState({recordNew: false});
     this.handleModalVisible(true);
   }
   onHas = (record) => { //显示实现的需求列表
@@ -364,8 +363,9 @@ export default class ImplList extends PureComponent {
     // record.pid.map( r => )
     const r = {...record, tags: record.tags.map(o => o._id)};
     this.props.dispatch({ type: 'implement/setRecord', payload: r, }); //保存到store
-
     dispatch({ type: 'implement/setReqList', payload: record.pid }); //保存到store
+    //准备对应类型的需求列表备选
+    dispatch({ type: 'requirement/fetch', payload: {state: '提出,处理中,挂起', type: record.type} }); 
     this.handleHasReqModalVisible(true);
   }
   onSelect = (record) => { //从需求列表中选择几个需求
@@ -382,8 +382,20 @@ export default class ImplList extends PureComponent {
       payload: this.state.queryParams, 
     });
   }
-
-
+  onTrack = (record, action) => { //
+    const { dispatch } = this.props; //deptTree,
+    var r = {_id: record._id, state: action, updatedAt: Date.now()};
+    if (action === '完成') {
+      r.actualdate = Date.now();
+    }
+    if (action === '恢复') {
+      r.state = '启动';
+    }
+    dispatch({ type: 'implement/update', payload: r}); 
+    //刷新主列表
+    dispatch({ type: 'implement/fetch'});
+    message.success('行动为:' + action);
+  }
 // Render the List-------------------------------------------------------------------------------------
   render() {
     const { implement: { data }, loading } = this.props;
@@ -394,8 +406,8 @@ export default class ImplList extends PureComponent {
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
-    const statusMap = {'提出':'default', '处理中':'processing', '关闭':'success', '挂起':'warning', '取消':'error'};  
-    const status = ['提出', '处理中', '关闭', '挂起', '取消'];
+    const statusMap = {'计划':'default', '启动':'processing', '采购':'processing', '到货':'processing', '完成':'success', '暂停':'warning', '取消':'error'};  
+    const status = ['计划', '启动', '关闭', '挂起', '取消'];
     const columns = [
       { //显示行号
         title: 'No',
@@ -405,9 +417,19 @@ export default class ImplList extends PureComponent {
         render: (text, record, index) => <span> {index+1} </span>,
       },
       {
-        title: '责任人',
-        dataIndex: 'user',
-        //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        title: '标签',
+        dataIndex: 'tags',
+        // dataIndex: 'tagRecords',
+        render(val) {
+          // message.success(JSON.stringify(val));
+          return  <span>{val.map(o => o.username).join('、')}</span>;
+        }
+      },
+      {
+        title: '类别',
+        dataIndex: 'type',
+        sorter: true,
+        //render: val => `${val} 万`,
       },
       {
         title: '标的物',
@@ -440,21 +462,6 @@ export default class ImplList extends PureComponent {
         sorter: true,
         render: val => `${val.toFixed(2)}`,
       },
-      {
-        title: '经费渠道',
-        dataIndex: 'tags',
-        // dataIndex: 'tagRecords',
-        render(val) {
-          // message.success(JSON.stringify(val));
-          return  <span>{val.map(o => o.username).join('、')}</span>;
-        }
-      },
-      {
-        title: '类别',
-        dataIndex: 'type',
-        sorter: true,
-        //render: val => `${val} 万`,
-      },
       //{
       //  title: '归属',
       //  dataIndex: 'pid',
@@ -485,9 +492,14 @@ export default class ImplList extends PureComponent {
       //     },
       //   ],
       //   //render: val => <span>{val}</span>,
-      //   render(val) {
-      //     return <Badge status={statusMap[val]} text={val} />;
-      //   },
+        render(val) {
+          return <Badge status={statusMap[val]} text={val} />;
+        },
+      },
+      {
+        title: '责任人',
+        dataIndex: 'user',
+        //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
       },
       {
         title: '计划日期',
@@ -496,8 +508,8 @@ export default class ImplList extends PureComponent {
         render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
       },
       {
-        title: '更新日期',
-        dataIndex: 'updatedAt',
+        title: '完成日期',
+        dataIndex: 'actualdate',
         sorter: true,
         render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
       },
@@ -506,32 +518,43 @@ export default class ImplList extends PureComponent {
         //dataIndex: 'operation',
         //record中是list中的一条记录
         render: (text, record) => {
+          //PetriNet, 定义了：需求的每个状态下可选的落实行动
+          const state_actions = {
+            '计划': ['启动','取消','暂停','Divider','编辑','删除'], //还有 '计划'，但'计划'的计划项本身又是个子PetriNet, 在Implement中处理
+            '启动': ['采购','取消','暂停','Divider','编辑'], //还有 '计划'，但'计划'的计划项本身又是个子PetriNet, 在Implement中处理
+            '采购': ['到货','取消','暂停','Divider','编辑'], //还有 '计划'
+            '到货': ['完成','取消','暂停','Divider','编辑'], //还有 '计划'
+            '暂停': ['恢复','取消'],
+            '完成': [],
+            '取消': [],
+          };
+          const action_menuitem = {
+            // '计划': <Button key="impl" type="primary" onClick={() => this.handleCreateImpl('计划')}>新增计划项</Button>,
+            // '实际': <Button key="impl" onClick={() => this.handleCreateImpl('实际')}>新增实际项</Button>,
+            '启动': <Menu.Item> <a onClick={() => this.onTrack(record,'启动')}>启动</a></Menu.Item>,
+            '采购': <Menu.Item> <a onClick={() => this.onTrack(record,'采购')}>采购</a></Menu.Item>,
+            '到货': <Menu.Item> <a onClick={() => this.onTrack(record,'到货')}>到货</a></Menu.Item>,
+            '完成': <Menu.Item> <a onClick={() => this.onTrack(record,'完成')}>完成</a></Menu.Item>,
+            '暂停': <Menu.Item> <a onClick={() => this.onTrack(record,'暂停')}>暂停</a></Menu.Item>,
+            '恢复': <Menu.Item> <a onClick={() => this.onTrack(record,'恢复')}>恢复</a></Menu.Item>,
+            '取消': <Menu.Item> <a onClick={() => this.onTrack(record,'取消')}>取消</a></Menu.Item>,
+            '编辑': <Menu.Item> <a onClick={() => this.onEdit(record)}>编辑</a></Menu.Item>,
+            '删除': <Menu.Item><Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}><a>删除</a></Popconfirm></Menu.Item>,
+            'Divider': <Menu.Divider />
+          };
+
           const menu = (
             <Menu>
-              <Menu.Item> <a onClick={() => this.onEdit(record)}>编辑</a></Menu.Item>
-              <Menu.Item> <a onClick={() => this.onTrack(record)}>启动</a></Menu.Item>
-              <Menu.Item> <a onClick={() => this.onTrack(record)}>采购</a></Menu.Item>
-              <Menu.Item> <a onClick={() => this.onTrack(record)}>到货</a></Menu.Item>
-              <Menu.Item> <a onClick={() => this.onTrack(record)}>完成</a></Menu.Item>
-              <Menu.Item> <a onClick={() => this.onTrack(record)}>取消</a></Menu.Item>
-              <Menu.Item> <a onClick={() => this.onTrack(record)}>暂停</a></Menu.Item>
-              <Menu.Item> <a onClick={() => this.onTrack(record)}>恢复</a></Menu.Item>
-              <Menu.Item>
-                <Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}>
-                  <a href="#">删除</a>
-                </Popconfirm>
-              </Menu.Item>
+              {state_actions[record.state || '计划'].map(a => action_menuitem[a])} 
             </Menu>
           );
           return (
             <Fragment>
             {/* <Authorized authority={['user', 'admin']}> */}
-              <a onClick={() => this.onHas(record)}>需求</a>
+              <a onClick={() => this.onHas(record)}>关联需求</a>
               <Divider type="vertical" />
               <Dropdown overlay={menu}>
-                <a href="#">
-                  <Icon type="ellipsis" />
-                </a>
+                <a>更多<Icon type="down"/></a>
               </Dropdown>
               {/* <a onClick={() => this.onEdit(record)}>编辑</a>
               <Divider type="vertical" />
@@ -564,9 +587,11 @@ export default class ImplList extends PureComponent {
                   {this.renderForm()}
                 </div>
                 <div className={styles.tableListOperator}>
-                  <Button icon="plus" type="primary" onClick={() => this.onCreate()}>新计划项</Button>
-                  {/* <Button icon="plus" type="primary" onClick={() => this.onCreate('设备')}>新设备计划项</Button>
-                  <Button icon="plus" type="primary" onClick={() => this.onCreate('软件')}>新软件计划项</Button> */}
+                  <Button icon="plus" type="primary" onClick={() => this.onCreate('应用')}>新应用</Button>
+                  <Button icon="plus" onClick={() => this.onCreate('设备')}>新设备</Button>
+                  <Button icon="plus" onClick={() => this.onCreate('软件')}>新软件</Button>
+                  <Button icon="plus" onClick={() => this.onCreate('网络')}>新网络</Button>
+                  <Button icon="plus" onClick={() => this.onCreate('服务')}>新服务</Button>
                   {
                     selectedRows.length > 0 && (
                       <span>

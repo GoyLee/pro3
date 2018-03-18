@@ -156,38 +156,45 @@ export default class RequirementList extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="需求">
-              {getFieldDecorator('reqname')(
-                <Input placeholder="请输入" />
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="状态">
-              {getFieldDecorator('state')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="提出">提出</Option>
-                  <Option value="处理中">处理中</Option>
-                  <Option value="挂起">挂起</Option>
-                  <Option value="取消">取消</Option>
-                  <Option value="关闭">关闭</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">查询</Button>
-              <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>重置</Button>
-              {/* <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-                展开 <Icon type="down" />
-              </a> */}
-            </span>
-          </Col>
-        </Row>
-      </Form>
+      <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col md={6} sm={24}>
+          <FormItem label="部门">
+            {getFieldDecorator('department')(
+              <Input placeholder="请输入" />
+            )}
+          </FormItem>
+        </Col>
+        <Col md={8} sm={24}>
+          <FormItem label="需求">
+            {getFieldDecorator('reqname')(
+              <Input placeholder="请输入" />
+            )}
+          </FormItem>
+        </Col>
+        <Col md={6} sm={24}>
+          <FormItem label="状态">
+            {getFieldDecorator('state')(
+              <Select placeholder="请选择" style={{ width: '100%' }}>
+                <Option value="提出">提出</Option>
+                <Option value="处理中">处理中</Option>
+                <Option value="挂起">挂起</Option>
+                <Option value="取消">取消</Option>
+                <Option value="关闭">关闭</Option>
+              </Select>
+            )}
+          </FormItem>
+        </Col>
+        <Col md={4} sm={24}>
+          <span className={styles.submitButtons}>
+            <Button type="primary" htmlType="submit">查询</Button>
+            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>重置</Button>
+            {/* <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
+              展开 <Icon type="down" />
+            </a> */}
+          </span>
+        </Col>
+      </Row>
+    </Form>
     );
   }
 
@@ -378,6 +385,12 @@ export default class RequirementList extends PureComponent {
         title: '提出人',
         dataIndex: 'demander',
         //render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      }, 
+      {
+        title: '类别',
+        dataIndex: 'type',
+        sorter: true,
+        //render: val => `${val} 万`,
       },
       {
         title: '需求',
@@ -397,12 +410,6 @@ export default class RequirementList extends PureComponent {
           // message.success(JSON.stringify(val));
           return  <span>{val.map(o => o.username).join('、')}</span>;
         }
-      },
-      {
-        title: '类别',
-        dataIndex: 'type',
-        sorter: true,
-        //render: val => `${val} 万`,
       },
       //{
       //  title: '归属',
@@ -467,9 +474,7 @@ export default class RequirementList extends PureComponent {
                 <a onClick={() => this.onTrack(record)}>跟踪</a>
               <Divider type="vertical" />
               <Dropdown overlay={menu}>
-                <a href="#">
-                  <Icon type="ellipsis" />
-                </a>
+                <a>更多<Icon type="down" /></a>
               </Dropdown>
             </Fragment>
             //  <a onClick={() => this.props.onRemove(record)}>删除</a>

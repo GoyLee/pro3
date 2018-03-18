@@ -21,7 +21,7 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 //CreateForm = Form.create()((props) => {
 @connect(({implement, requirement, party, user}) => ({
   record: implement.record,
-  pRecord: requirement.record,
+  // pRecord: requirement.record,
   tagTree: party.tag.list,
   classList: party.classList,
   currentUser: user.currentUser.name,
@@ -76,7 +76,7 @@ export default class ImplForm extends PureComponent {
     });
   }
   okHandle = () => {
-    const { record, pRecord, currentUser, handleModalVisible, dispatch } = this.props;
+    const { record, currentUser, handleModalVisible, dispatch } = this.props;
 
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
@@ -94,14 +94,13 @@ export default class ImplForm extends PureComponent {
       } else { //Create a new record
         dispatch({ type: 'implement/add', payload: fields, });
       }
-      // 更新对应需求的状态。注意这里仅提供了要更新的字段，其他字段自动保留！
-      dispatch({ type: 'requirement/update', payload: {_id: pRecord._id, state: '处理中'}, });
-      dispatch({ type: 'requirement/setRecord', payload: {...pRecord, state: '处理中',} }); //刷新EventForm
+      // dispatch({ type: 'implement/fetch'});
+      // dispatch({ type: 'requirement/setRecord', payload: {...pRecord, state: '处理中',} }); //刷新EventForm
+      // setTimeout(function () {
+      //   dispatch({ type: 'event/fetch', payload: {pid: record.pid}, });
+      //   // message.success('更改成功:' + JSON.stringify(fields));
+      // }, 2000); //setTimeout()中不能用this指针
 
-      setTimeout(function () {
-        dispatch({ type: 'event/fetch', payload: {pid: pRecord._id}, });
-        // message.success('更改成功:' + JSON.stringify(fields));
-      }, 2000); //setTimeout()中不能用this指针
       handleModalVisible(false, true);
     });
   };
@@ -118,10 +117,11 @@ export default class ImplForm extends PureComponent {
 //render the form-----------------------------------------------------------------------------------------
   //<pre className="language-bash"> {JSON.stringify(record, null, 2)} </pre>
   render(){
-    const { tagTree, record, classList, pRecord, modalVisible, form, handleModalVisible } = this.props; //deptTree,
+    const { tagTree, record, classList, modalVisible, form, handleModalVisible } = this.props; //deptTree,
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
-      <Modal title={record.type + '项 | 需求：' + pRecord.reqname} visible={modalVisible} onOk={this.okHandle} 
+      <Modal title={(record._id ? '[更新]：' : '[新建]：') 
+              + record.type + '类需求实现计划项'} visible={modalVisible} onOk={this.okHandle} 
             onCancel={() => handleModalVisible(false, false)}>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="年度">
           {form.getFieldDecorator('budgetyear',{initialValue: '2018'})( 
@@ -135,10 +135,9 @@ export default class ImplForm extends PureComponent {
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标的">
           {form.getFieldDecorator('name',{
-            // initialValue: pRecord.reqname,
             rules: [{ required: true, message: 'Please input the request...' }],
           })( 
-            (pRecord.type === '软件' || pRecord.type === '设备') ? 
+            (record.type === '软件' || record.type === '设备') ? 
               <Select mode='combobox' onSelect={this.handleSelect} style={{ width: '100%' }}>
                 {classList.map(d => <Option key={d.username}>{d.username}</Option>)}
               </Select>
@@ -175,13 +174,13 @@ export default class ImplForm extends PureComponent {
           )}
           <label>（万元）</label>
         </FormItem>
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="经费渠道">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签">
           {form.getFieldDecorator('tags', {
             rules: [{ required: false, message: 'Please input the tags...' }],
           })(
             // <Cascader options={tagTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
             // Tags需可多选，但antd cascader还不支持多选！还需用TreeSelect。
-            <TreeSelect treeCheckable showCheckedStrategy='SHOW_CHILD' allowClear multiple 
+            <TreeSelect treeCheckable showCheckedStrategy='SHOW_PARENT' allowClear multiple 
               treeNodeFilterProp='label' 
               treeData={tagTree} showSearch searchPlaceholder='搜索标签'
               onChange={this.onTagChange} style={{ width: '100%' }} 
