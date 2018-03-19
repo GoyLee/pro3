@@ -163,7 +163,7 @@ class BasicLayout extends React.PureComponent {
           collapsed={collapsed}
           location={location}
           isMobile={this.state.isMobile}
-          onCollapse={this.handleMenuCollapse}
+          // onCollapse={this.handleMenuCollapse}
         />
         <Layout>
           <GlobalHeader

@@ -72,8 +72,10 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
         demander: Form.createFormField({ ...props.record.demander, value: props.record.demander,}),
         department: Form.createFormField({ ...props.record.department, value: props.record.department,}),
         reqname: Form.createFormField({ ...props.record.reqname, value: props.record.reqname,}),
+        necessity: Form.createFormField({ ...props.record.necessity, value: props.record.necessity,}),
         // program: Form.createFormField({ ...props.record.program, value: props.record.program,}),
         tags: Form.createFormField({ ...props.record.tags, value: props.record.tags,}),
+        amount: Form.createFormField({ ...props.record.amount, value: props.record.amount,}),
         type: Form.createFormField({ ...props.record.type, value: props.record.type,}),
         state: Form.createFormField({ ...props.record.state, value: props.record.state,}),
       };
@@ -114,15 +116,9 @@ export default class ReqForm extends PureComponent {
       //this.props.handleAdd(fieldsValue);
       if(record._id) { //Update exist record
         //const { requirement: { record } } = this.props;
-        this.props.dispatch({
-          type: 'requirement/update',
-          payload: fields, 
-        });    
+        this.props.dispatch({ type: 'requirement/update', payload: fields, });    
       } else { //Create a new record
-        this.props.dispatch({
-          type: 'requirement/add',
-          payload: fields, // {
-        });
+        this.props.dispatch({ type: 'requirement/add', payload: fields, });
       }
       handleModalVisible(false, true);
       message.success('更改成功:' + JSON.stringify(fields));
@@ -200,7 +196,15 @@ export default class ReqForm extends PureComponent {
             initialValue: '',
             rules: [{ required: true, message: 'Please input the requirement...' }],
           })(
-            <TextArea rows={4} placeholder="请输入"/>
+            <TextArea rows={3} placeholder="请输入"/>
+          )}
+        </FormItem>
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="必要性">
+          {form.getFieldDecorator('necessity', {
+            initialValue: '',
+            rules: [{ required: false, message: 'Please input the necessity...' }],
+          })(
+            <TextArea rows={5} placeholder="请输入"/>
           )}
         </FormItem>
         {/* <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="数量">
@@ -211,6 +215,13 @@ export default class ReqForm extends PureComponent {
             <InputNumber rows={4} placeholder="请输入"/>
           )}
         </FormItem> */}
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="估价">
+          {form.getFieldDecorator('amount')(
+            // <InputNumber disabled precision={2}/>
+            <InputNumber precision={2}/>
+          )}
+          <label>（万元）</label>
+        </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="归属项目群">
           {form.getFieldDecorator('tags', {
             rules: [{ required: false, message: 'Please input the tags...' }],

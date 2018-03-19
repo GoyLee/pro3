@@ -45,7 +45,7 @@ class StandardTable extends PureComponent {
 
   render() {
     const { selectedRowKeys, totalNumber } = this.state;
-    const { columns, data: { list, pagination }, loading } = this.props;
+    const { columns, expandedRowRender, data: { list, pagination }, loading } = this.props;
     //message.success(JSON.stringify(pagination));
     //分页属性
     const paginationProps = {
@@ -85,6 +85,8 @@ class StandardTable extends PureComponent {
           dataSource={list}
           bordered
           columns={columns}
+          // expandedRowRender={record => <p style={{ margin: 0 }}>{record.necessity}</p>}
+          expandedRowRender={expandedRowRender}
           pagination={paginationProps}
           onChange={this.handleTableChange}
           size="small"

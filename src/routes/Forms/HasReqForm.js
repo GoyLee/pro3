@@ -120,7 +120,7 @@ export default class SelectReqForm extends PureComponent {
 
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
-      <Modal title={"选择需求 | 标的：" + record.name} visible={modalVisible} width="50%" 
+      <Modal title={"关联的需求 | 标的：" + record.name} visible={modalVisible} width="50%" 
           onCancel={() => handleModalVisible(false, false)}
           footer={[
             <Button key="submit"  type="primary" onClick={() => this.onAddReq()}>添加需求</Button>,

@@ -449,14 +449,14 @@ export default class ImplList extends PureComponent {
         // render: val => `${val} （万元）`,
       },
       {
-        title: '单价（万元）',
+        title: '单价',
         dataIndex: 'price',
         align: 'right',
         sorter: true,
         // render: val => `${val} （万元）`,
       },
       {
-        title: '金额（万元）',
+        title: '金额',
         dataIndex: 'amount',
         align: 'right',
         sorter: true,
@@ -505,13 +505,13 @@ export default class ImplList extends PureComponent {
         title: '计划日期',
         dataIndex: 'date',
         sorter: true,
-        render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+        render: val => val? <span>{moment(val).format('YYYY-MM-DD')}</span> : <span/>,
       },
       {
         title: '完成日期',
         dataIndex: 'actualdate',
         sorter: true,
-        render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+        render: val => val? <span>{moment(val).format('YYYY-MM-DD')}</span> : <span/>,
       },
       {
         title: '操作',
@@ -524,9 +524,9 @@ export default class ImplList extends PureComponent {
             '启动': ['采购','取消','暂停','Divider','编辑'], //还有 '计划'，但'计划'的计划项本身又是个子PetriNet, 在Implement中处理
             '采购': ['到货','取消','暂停','Divider','编辑'], //还有 '计划'
             '到货': ['完成','取消','暂停','Divider','编辑'], //还有 '计划'
-            '暂停': ['恢复','取消'],
+            '暂停': ['恢复','取消','Divider','编辑','删除'],
             '完成': [],
-            '取消': [],
+            '取消': ['删除'],
           };
           const action_menuitem = {
             // '计划': <Button key="impl" type="primary" onClick={() => this.handleCreateImpl('计划')}>新增计划项</Button>,
@@ -551,7 +551,7 @@ export default class ImplList extends PureComponent {
           return (
             <Fragment>
             {/* <Authorized authority={['user', 'admin']}> */}
-              <a onClick={() => this.onHas(record)}>关联需求</a>
+              <a onClick={() => this.onHas(record)}>需求</a>
               <Divider type="vertical" />
               <Dropdown overlay={menu}>
                 <a>更多<Icon type="down"/></a>

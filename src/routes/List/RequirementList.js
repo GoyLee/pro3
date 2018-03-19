@@ -395,14 +395,15 @@ export default class RequirementList extends PureComponent {
       {
         title: '需求',
         dataIndex: 'reqname',
-        width: 500,
+        // width: 500,
       },
-      // {
-      //   title: '数量',
-      //   dataIndex: 'quantity',
-      //   // sorter: true,
-      //   //render: val => `${val} 万`,
-      // },
+      {
+        title: '估价',
+        dataIndex: 'amount',
+        align: 'right',
+        sorter: true,
+        //render: val => `${val} 万`,
+      },
       {
         title: '归属项目群',
         dataIndex: 'tagRecords',
@@ -531,6 +532,8 @@ export default class RequirementList extends PureComponent {
                   loading={loading}
                   columns={columns}
                   data={data}
+                  expandedRowRender={record => <p style={{ margin: 0, color: '#f00' }}>
+                                            {'必要性：' + record.necessity}</p>}
                   onSelectRow={this.handleSelectRows}
                   onChange={this.handleStandardTableChange}
                   />
