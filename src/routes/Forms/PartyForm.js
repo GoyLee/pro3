@@ -136,7 +136,7 @@ export default class PartyForm extends PureComponent {
         {type === '部门' || type ==='员工' ?
           <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="上级部门">
             {form.getFieldDecorator('pid', {
-              rules: [{ required: false, message: 'Please input the super...' }],
+              rules: [{ required: type ==='员工'? true : false, message: 'Please input the super...' }],
             })(
               <Cascader options={deptTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
               // <TreeSelect allowClear treeNodeFilterProp='label' value={this.state.deptTreeSelectValue} treeDefaultExpandAll treeData={deptTree} showSearch searchPlaceholder='搜索部门' onChange={this.onDeptChange} style={{ width: '100%' }} />

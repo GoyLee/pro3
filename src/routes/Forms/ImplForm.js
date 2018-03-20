@@ -176,7 +176,7 @@ export default class ImplForm extends PureComponent {
         </FormItem>
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标签">
           {form.getFieldDecorator('tags', {
-            rules: [{ required: false, message: 'Please input the tags...' }],
+            rules: [{ required: true, message: 'Please input the tags...' }],
           })(
             // <Cascader options={tagTree} placeholder="Please select" showSearch changeOnSelect expandTrigger="hover" style={{ width: '100%' }}/>,
             // Tags需可多选，但antd cascader还不支持多选！还需用TreeSelect。

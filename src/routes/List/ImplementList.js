@@ -434,12 +434,21 @@ export default class ImplList extends PureComponent {
       {
         title: '标的物',
         dataIndex: 'name',
-        width: 100,
+        // width: 100,
+        render: (text, record) => {
+          const allowedState = ['提出','处理中','挂起'];
+          //  message.success(record.pid.map(o => o.state).join('、'));
+          // const r = record.pid.reduce((sum,o) => sum = sum + (allowedState.find(s => s === o.state) ? 1: 0));
+          var t =[];
+          record.pid.map((o) => allowedState.find(s => s === o.state) ? t.push(o): null);
+          // return <span>{text}</span>;
+          return t.length != record.pid.length ? <span style={{ color: '#f00' }}>{text}</span> : <span>{text}</span>;
+        }
       },
       {
         title: '规格',
         dataIndex: 'spec',
-        width: 400,
+        // width: 400,
       },
       {
         title: '数量',
@@ -553,9 +562,11 @@ export default class ImplList extends PureComponent {
             {/* <Authorized authority={['user', 'admin']}> */}
               <a onClick={() => this.onHas(record)}>需求</a>
               <Divider type="vertical" />
-              <Dropdown overlay={menu}>
-                <a>更多<Icon type="down"/></a>
-              </Dropdown>
+              <span style={{ visibility: record.state === '完成'? 'hidden' : 'visible' }}> 
+                <Dropdown overlay={menu}>
+                  <a>更多<Icon type="down"/></a>
+                </Dropdown>
+              </span>
               {/* <a onClick={() => this.onEdit(record)}>编辑</a>
               <Divider type="vertical" />
               <Popconfirm title="Sure to delete?" onConfirm={() => this.onRemove(record)}>
@@ -614,6 +625,9 @@ export default class ImplList extends PureComponent {
                   onChange={this.handleStandardTableChange}
                   />
               </div>
+              <span style={{ color: '#00f' }}>注：1、金额的单位都是人民币（万元）。2、“标的物”</span>
+              <span style={{ color: '#f00' }}>标红</span>
+              <span style={{ color: '#00f' }}>的项目请检查关联需求的状态。</span>
         </Card>
         <ImplForm
             handleModalVisible={this.handleModalVisible}

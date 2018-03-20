@@ -98,10 +98,15 @@ export default class SelectReqForm extends PureComponent {
       //   }
       // },
       {
-        title: '类别',
-        dataIndex: 'type',
+        title: '状态',
+        dataIndex: 'state',
         // sorter: true,
-        //render: val => `${val} 万`,
+        render: (text, record) => {
+          const allowedState = ['提出','处理中','挂起'];
+          const t  = allowedState.find(s => s === text) ;
+          // return <span>{text}</span>;
+          return t ? <span>{text}</span> : <span style={{ color: '#f00' }}>{text}</span> ;
+        }
       },
       {
         title: '操作',
@@ -111,25 +116,32 @@ export default class SelectReqForm extends PureComponent {
         render: (text, record) => {
           return (
               <Fragment>
-                 <a onClick={() => this.handleRemove(record)}>移除</a>
+                <span style={{ visibility: this.props.record.state === '完成'? 'hidden' : 'visible' }}> 
+                  <a onClick={() => this.handleRemove(record)}>移除</a>
+                </span>
               </Fragment>
           );
         },
       },
     ];
 
+    const footer = record.state != '完成' ? [
+        <Button key="submit"  type="primary" onClick={() => this.onAddReq()}>添加需求</Button>,
+        <Divider type="vertical" />,
+        // state_actions[pRecord.state || '提出'].map(a => action_Button[a]), //state->actions->Buttons
+        // <Divider type="vertical" />,
+        <Button key="ok" onClick={() => this.okHandle() }>确定</Button>,
+        <Button key="cancel" onClick={() => handleModalVisible(false, false) }>取消</Button>,
+      ]
+    :
+    [
+      <Button key="cancel" onClick={() => handleModalVisible(false, false) }>取消</Button>,
+    ];
     //const options = userList.map(d => <Option key={d._id}>{d.username}</Option>);
     return (
       <Modal title={"关联的需求 | 标的：" + record.name} visible={modalVisible} width="50%" 
           onCancel={() => handleModalVisible(false, false)}
-          footer={[
-            <Button key="submit"  type="primary" onClick={() => this.onAddReq()}>添加需求</Button>,
-            <Divider type="vertical" />,
-            // state_actions[pRecord.state || '提出'].map(a => action_Button[a]), //state->actions->Buttons
-            // <Divider type="vertical" />,
-            <Button key="ok" onClick={() => this.okHandle() }>确定</Button>,
-            <Button key="cancel" onClick={() => handleModalVisible(false, false) }>取消</Button>,
-          ]}
+          footer={footer}
       >
         {/* <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="提出人">
           {form.getFieldDecorator('demander',

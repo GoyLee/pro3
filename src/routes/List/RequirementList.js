@@ -538,6 +538,7 @@ export default class RequirementList extends PureComponent {
                   onChange={this.handleStandardTableChange}
                   />
               </div>
+              <span style={{ margin: 0, color: '#00f' }}>注：“估计”的单位都是人民币（万元）。</span>
         </Card>
         <ReqForm
             handleModalVisible={this.handleModalVisible}
